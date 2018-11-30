@@ -241,7 +241,7 @@ for(i in unique(all_roots$ex)){
     chull.area <- chull.poly@area
 
     polyg <- cbind(as.data.frame(x[ch,]), ex = i, rep = paste0(j,xy), age = ag)
-    pol_area <- c(chull.area/10000)%>%
+    pol_area <- c(chull.area/10000)%>% # Transformation into square meter
                     as.tibble()%>%
                     transmute(area = value, ex = i, rep= paste0(j,xy), age = as.numeric(ag))
     poly_area <- rbind(poly_area, pol_area)
@@ -265,17 +265,18 @@ pol_ch%>%
 
 as well as the area of the convex hull.
 
-```{r area of convex hull, echo=F, }
+```{r area of convex hull, echo=F, fig.cap="Area of the convex hull of the different root system examples"}
 
 poly_area%>%
   ggplot(aes(x = as.factor(age), y = area))+
   theme_classic()+
+  geom_boxplot(aes(fill = ex), alpha = 0.2)+
   geom_jitter(aes(shape = ex, colour = ex), size = 3, width = 0.1, height = 0, alpha = 0.5)+
   ylab("area (m²)")+
   xlab("time (d)")+
- # theme(legend.position = "bottom")+
   labs(colour = "RSA example",
-       shape = "RSA example")
+       shape = "RSA example")+
+  guides(fill = F)
   
 
 ```
@@ -295,10 +296,14 @@ RD <- all_roots%>%
             rDepth = mean(rooting_depth))%>%
   as.data.frame()
 
+```
+
+```{r rooting depth, echo=F, fig.cap="Rooting depth of the different root system examples" }
+
 RLD %>%
   ggplot(aes(age, rooting_depth, colour = factor(ex)))+
   geom_point(size = 2, alpha = 0.5)+
-  geom_point(aes(x = 0, y = -3), size = 2, alpha = 0.5, shape = 14)+
+  geom_point(aes(x = 0, y = -3), size = 2, alpha = 0.5, shape = 14)+ # seeds
   geom_hline(yintercept = 0)+
   theme_classic()+
   facet_wrap(~ex, labeller =as_labeller(babbel))+
@@ -307,20 +312,20 @@ RLD %>%
 
 The total root length
 
-```{r root length}
+```{r root length, echo= F, fig.cap="Total root length for each of the root system examples"}
 RLD %>%
-  ggplot(aes(age, root, colour = factor(ex)))+
+  ggplot(aes(age, root/1000, colour = factor(ex)))+
   geom_point(size = 2, alpha = 0.5)+
   geom_point(aes(x = 0, y = 0), size = 2)+
   theme_classic()+
   facet_wrap(~ex, labeller =as_labeller(babbel))+
   labs(colour = "RSA example")+
-  ylab("Total root length")+
+  ylab("Total root length (m)")+
   xlab("Time (d)")
 
 ```
 
-```{r root tip number}
+```{r root tip number, echo= F, fig.cap="Number of different roots for each of the root system examples"}
 all_roots%>%
   group_by(age, ex, rep)%>%
   summarise(tip = max(sort(unique(branchID))))%>%
@@ -336,20 +341,22 @@ all_roots%>%
 ```
 
 The pressure head of the water potential within the soil is created from the followig line of code.
-Here, there are three soil scenarios with three different coeficient in the drying function. 
+Here, there are three soil scenarios with three different coeficient in the drying function.
+
+The drying function is :
+
+> $psi_i = \alpha x (z_i+L)^{10} x Time_i / (L^{10} x Time_{end}) -230 $
 
 ```{r plot water soil potential}
+# Créating the soil
 profile_depth <- 150
 z <- seq(-profile_depth, 0, by = 5)
 value <- sort(rep(full_time, length(z)))
 psi <- rep(-230, length(value))
 z <- rep(z, ntimesteps)
 
-
-
 soil <- NULL
 for(i in c(-300, -7000, -15000)){
-  
 soil_tmp <- cbind(z, value, psi)%>%
   as.tibble()%>%
   mutate(psi = i*(((z+profile_depth)^(10))*value)/
@@ -361,6 +368,11 @@ soil<- rbind(soil, soil_tmp)
 
 }
 
+# Water potential at the collar (hPa)
+tpots <- -15000
+```
+
+```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile"}
 soil %>%
   filter(value %in% c(10,30,50,60))%>%
   ggplot(aes(psi, z, colour = factor(value)))+
@@ -369,10 +381,9 @@ soil %>%
   xlab("Pressure head (hPa)") +
   ylab("Depth (cm)")+
   labs(colour = "Time (days)")+
-  facet_grid(~humid)+
+  facet_grid(~humid, labeller =as_labeller(babbel))+
   theme(axis.text.x=element_text(angle=90))
 
-tpots <- -15000
 
 ```
 
@@ -386,14 +397,15 @@ MARSHAL provide an estimation of the conductance of the whole root system, the a
 new_all_roots <- NULL
 results<- NULL
 k <- 1
-# ------------------------------------------
-# Computing the hydraulic of the root system
-# ------------------------------------------
+# ------------------------------------------------
+# Computing the root system hydraulic architecture
+# ------------------------------------------------
 
 # Total of simulation that will be initiate
 all <- length(unique(all_roots$rep)) * length(unique(conductivities$scenario)) * 
           length(unique(all_roots$age)) * length(unique(all_roots$ex)) *
           length(unique(soil$humid))
+
 pb = txtProgressBar(min = 0, max = all, initial = 0, style = 3)
 
 # Loop to run MARSHAL with the selected simulation parameters.
