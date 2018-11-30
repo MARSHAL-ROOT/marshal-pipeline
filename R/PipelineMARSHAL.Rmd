@@ -70,18 +70,22 @@ babbel <- c("all_rain" = "rain all time",
 
 Once it is installed, the boundary condition on which the model works should be implemeted.
 
-# Boundary condition of MARSHAL
+# Boundary condition of MARSHAL.
 
-The bondary condition of the system are :
+The bondary condition to MARSHAL are :
 
+- The hydraulic properties of the root system
 - The water potential of the soil
 - The root system architecture
-- The hydraulic properties of the root system
 - The initial pressure strength that pull water out of the collar
 
-The hydraulic properties of the root system can be found in the litterature or by measuring it on root samples. Here, the conductivities of the root come from the Doussan et al. 1998 paper. To show some possibilities, two scenarios were built from this Doussan et al. table of conductivities. The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex.
+## Hydraulic properties of the root system
 
-```{r BC conductivities, warning= F}
+The hydraulic properties of the root system can be found in the litterature, by measuring it on root samples or with the helps of modelling tools. Here, the conductivities of the root come from the Doussan et al. 1998 paper. To show some possibilities, two scenarios were built from this Doussan et al. table of conductivities. The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex. And the third, is the opposite of the second, thus the maturity of the root anatomy, insted of being advance towards the apex, is moved backwards.
+
+### The axial conductance
+
+```{r BC conductivities, warning= F, echo=F, fig.cap= "Axial conductance on axes and lateral root type"}
 # Conductivities from Doussan et al. 1998
 conductivities <- read_excel("www/conductivities.xlsx") 
 
@@ -116,7 +120,9 @@ conductivities %>%
 
 ```
 
-```{r BC Kr, warning= F}
+### The radial conductivity
+
+```{r BC Kr, warning= F, echo= F}
 #Evolution of Kr along the root types
 conductivities %>%
   filter(type == "kr",
@@ -135,6 +141,9 @@ conductivities %>%
 ## Root architecture with CRootBox
 
 Modelling root system architecture can be achieve with CRootBox for instance. Some examples of the parametre files for a couples of specieses are details in the *modelparameter* folder, which is linked to the CRootBox depository.
+
+- https://github.com/Plant-Root-Soil-Interactions-Modelling/CRootBox
+
 For the purpose of the example we choose to work with three parameter file of Maize: 
 
 - "Zea_mays_3_Postma_2011"
@@ -180,17 +189,17 @@ for(param_name in param_choise){
 write_csv(all_roots, "all_roots.csv")
 #all_roots <- read.csv("all_roots.csv")
 
+# Take the same time variable as the one that were implemented in CRootBox.
 full_time <- sort(unique(as.numeric(all_roots$age)))
-
 time_step = full_time[2]-full_time[1]
 endTime = max(full_time)
 ntimesteps = endTime/time_step
 
 ```
 
-The following figure shows the root system architecture that comes out CRootBox at the half of the simulation time.
+The following figure shows the root system architectures that come out CRootBox at the half of the simulation time.
 
-```{r roots, echo=FALSE}
+```{r roots, echo=FALSE, fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days "}
 
 all_roots%>%
   filter(age == "30",
@@ -202,28 +211,30 @@ all_roots%>%
   geom_hline(yintercept = 0, color = "tan3")+
   facet_grid(ex ~ rep, labeller = as_labeller(babbel))
 
+
+
 ```
 
-We can get access to the convex hull
+With CRootBox, it is easy to access to the convex hull.
 
-```{r Convex hull}
+```{r Convex hull, echo = F, fig.cap="Convex hull of the root system examples x and y axes mixed"}
 root_20 <- all_roots%>%
   filter(age %in% c("20","40","60")) 
 pol_ch = poly_area<- NULL
 for(i in unique(all_roots$ex)){
   for(j in unique(all_roots$rep)){
     for(ag in unique(root_20$age)){
-      for(xy in c("x", "y")){#get the convex hull from two side
+      for(xy in c("x", "y")){# get the convex hull from the two sides
     tmp <- root_20%>%
       filter(ex == i, rep == j, age == ag)%>%
       select(paste0(xy,"2"),z2, ex, rep, age)
-      #select(x2,z2, ex, rep, age)
+      # select(x2,z2, ex, rep, age)
     first_col <- tmp[,1]
     x <- matrix(c(first_col, tmp$z2), nc = 2)
     ch <- chull(x= first_col, y = tmp$z2)
     ch <- c(ch, ch[1])
     
-    #Area of the convex hull
+    # Area of the convex hull
     xy.coords <- cbind(first_col, tmp$z2)
     chull.coords <- xy.coords[ch,]
     chull.poly <- sp::Polygon(chull.coords, hole = F)
@@ -254,7 +265,7 @@ pol_ch%>%
 
 as well as the area of the convex hull.
 
-```{r area of convex hull, echo=F}
+```{r area of convex hull, echo=F, }
 
 poly_area%>%
   ggplot(aes(x = as.factor(age), y = area))+
@@ -369,60 +380,60 @@ tpots <- -15000
 
 MARSHAL provide an estimation of the conductance of the whole root system, the actual and the potential transpiration. The input needed in order to provide those relevant informations are :
 
-1. The root architecture description.
 
-2. The different conductivities of the different root type.
-
-3. The water soil potential.
-
-4. The initial transpiration potential.
-
-```{r new_all_roots MARSHAL, eval=T, echo=T, warning=F, message= T}
+```{r new_all_roots MARSHAL, eval=T, echo=T, warning=F, message= F}
 
 new_all_roots <- NULL
 results<- NULL
-#Computing the hydraulic of the root system
 k <- 1
-#Total of simulation that will be launch
+# ------------------------------------------
+# Computing the hydraulic of the root system
+# ------------------------------------------
+
+# Total of simulation that will be initiate
 all <- length(unique(all_roots$rep)) * length(unique(conductivities$scenario)) * 
           length(unique(all_roots$age)) * length(unique(all_roots$ex)) *
           length(unique(soil$humid))
 pb = txtProgressBar(min = 0, max = all, initial = 0, style = 3)
 
+# Loop to run MARSHAL with the selected simulation parameters.
+
 for(exa in unique(all_roots$ex)){# Example of RSA
   for(re in unique(all_roots$rep)){ # repetition
     for(ag in sort(as.numeric(unique(all_roots$age)))){# age of the RS
-      for(sen in unique(conductivities$scenario)){ #hydraulic properties
-        for(hum in unique(soil$humid)){ #Scenario of water potential in the soil
+      for(sen in unique(conductivities$scenario)){ # hydraulic properties
+        for(hum in unique(soil$humid)){ # Scenario of water potential in the soil
 
         # Progression bar
         setTxtProgressBar(pb,k)
         
-        #Select specific Soil for the simulation
+        # Select specific Soil for the simulation
         temp_soil <- soil %>% 
           filter(value == ag,
                  humid == hum)%>% 
           select(-value, -humid)
-        #select specific root system for the simulation
+        # Select specific root system for the simulation
         temp_root <- all_roots %>% 
           filter(age == ag,
                  rep == re,
                  ex == exa)%>%
           as.tibble()%>%
           select(-ex)
-        #select specific conductivities
+        # Select specific conductivities
         temp_conduct <- conductivities%>%
           filter(scenario == sen)%>%
           select(-scenario)
         
-        # Run MARSHAL ----
+        # -----------------------------
+        # Run MARSHAL
+        # -----------------------------
         hydraulics <- getSUF(temp_root, 
                              temp_conduct, 
                              temp_soil, 
                              hetero = T, 
                              Psi_collar = tpots)
         
-        #Aggregate output from MARSHAL
+        # Aggregate output from MARSHAL
         results <- rbind(results, data.frame(krs = hydraulics$krs, 
                                              tact = hydraulics$tact, 
                                              tpot = hydraulics$tpot, 
@@ -434,10 +445,10 @@ for(exa in unique(all_roots$ex)){# Example of RSA
                                              humid = hum,
                                              simulation = k))
         
-        #keep the information about the very detail hydrological parameter on
-        #all the root segment only for one repetion of the plant per simulation.
+        # Keep the information about the very detail hydrological parameter on
+        # all the root segment only for one repetion of the plant per simulation.
         if(re == nrep){
-        #Format dataset to be compatible with MARSHAL output
+        # Format dataset to be compatible with MARSHAL output
         first <- temp_root[temp_root$node1ID == 0,]
         nodals_ids <- unique(temp_root$branchID[temp_root$type == 4 | 
                                                   temp_root$type == 5])
@@ -464,7 +475,7 @@ for(exa in unique(all_roots$ex)){# Example of RSA
           }
         temp_root <- temp_root[order(temp_root$node2ID, decreasing = F),]
         
-        #Merge output of MARSHAL on specific root segment
+        # Merge output of MARSHAL on specific root segment
         temp_root$suf <- as.vector(hydraulics$suf)
         temp_root$suf1 <- as.vector(hydraulics$suf1)
         temp_root$kx <- as.vector(hydraulics$kx)
@@ -473,13 +484,12 @@ for(exa in unique(all_roots$ex)){# Example of RSA
         temp_root$psi <- as.vector(hydraulics$psi)
         temp_root$jxl <- as.vector(hydraulics$jxl)
         temp_root$psi_soil <- as.vector(hydraulics$psi_soil)
-        #Add the simulation specificity to the dataset
+        # Add the simulation specificity to the dataset
         temp_root$scenario <- sen
         temp_root$ex <- exa
         temp_root$humid <- hum
         temp_root$rep <- re
         new_all_roots <- rbind(new_all_roots, temp_root)
-        #------------------------
         }
         k <- k + 1
         }
@@ -488,10 +498,9 @@ for(exa in unique(all_roots$ex)){# Example of RSA
   }
 }
 
-#Save
-write_csv(new_all_roots, "new_all_roots.csv")
-
-#new_all_roots <- read.csv("new_all_roots.csv")
+# Save the results
+# write_csv(new_all_roots, "new_all_roots.csv")
+# new_all_roots <- read.csv("new_all_roots.csv")
 
 ```
 
