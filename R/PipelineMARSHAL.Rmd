@@ -3,8 +3,6 @@ title: 'Getting Functionnal-structural plant model into a pipeline:'
 author: "Adrien Heymans, Felicien Meunier et Guillaume Lobet"
 date: "November 2018"
 output:
-  html_document:
-    df_print: paged
   pdf_document:
     number_sections: yes
 subtitle: MARSHAL pipeline
@@ -14,6 +12,7 @@ subtitle: MARSHAL pipeline
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "~/GitHub/marshal-pipeline")
 ```
+
 ***
 
 # Introduction
@@ -74,16 +73,16 @@ Once it is installed, the boundary condition on which the model works should be 
 
 The bondary condition to MARSHAL are :
 
-- The hydraulic properties of the root system
-- The water potential of the soil
-- The root system architecture
-- The initial pressure strength that pull water out of the collar
+- The hydraulic properties of the roots.
+- The water potential of the soil.
+- The root system architecture.
+- The initial pressure strength that pull water out of the collar.
 
 ## Hydraulic properties of the root system
 
 The hydraulic properties of the root system can be found in the litterature, by measuring it on root samples or with the helps of modelling tools. Here, the conductivities of the root come from the Doussan et al. 1998 paper. To show some possibilities, two scenarios were built from this Doussan et al. table of conductivities. The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex. And the third, is the opposite of the second, thus the maturity of the root anatomy, insted of being advance towards the apex, is moved backwards.
 
-#### The axial conductance
+### The axial conductance
 
 ```{r BC conductivities, warning= F, echo=F, fig.cap= "Axial conductance on axes and lateral root type"}
 # Conductivities from Doussan et al. 1998
@@ -120,7 +119,7 @@ conductivities %>%
 
 ```
 
-#### The radial conductivity
+### The radial conductivity
 
 ```{r BC Kr, warning= F, echo= F}
 #Evolution of Kr along the root types
@@ -198,7 +197,7 @@ ntimesteps = endTime/time_step
 
 ```
 
-#### The root system architecture
+### The root system architecture
 
 The following figure shows the root system architectures that come out CRootBox at the half of the simulation time.
 
@@ -272,7 +271,7 @@ pol_ch%>%
 
 ```
 
-#### The area of the convex hull.
+#### The convex hull area.
 
 ```{r area of convex hull, echo=F, fig.cap="Area of the convex hull of the different root system examples"}
 
@@ -382,15 +381,6 @@ soil<- rbind(soil, soil_tmp)
 }
 ```
 
-## The water potential at the collar
-
-Expressed in hecto-Pascal, the pressure head define the transpiration strenght that drags the water out of the root system. $-15.000 \ hPa$
-
-```{r}
-# Water potential at the collar (hPa)
-tpots <- -15000
-```
-
 ```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile"}
 soil %>%
   filter(value %in% c(10,30,50,60))%>%
@@ -402,8 +392,15 @@ soil %>%
   labs(colour = "Time (days)")+
   facet_grid(~humid, labeller =as_labeller(babbel))+
   theme(axis.text.x=element_text(angle=90))
+```
 
+## The water potential at the collar
 
+Expressed in hecto-Pascal, the pressure head define the transpiration strenght that drags the water out of the root system. $-15.000 \ hPa$
+
+```{r}
+# Water potential at the collar (hPa)
+tpots <- -15000
 ```
 
 # MARSHAL
@@ -425,7 +422,7 @@ all <- length(unique(all_roots$rep)) * length(unique(conductivities$scenario)) *
           length(unique(all_roots$age)) * length(unique(all_roots$ex)) *
           length(unique(soil$humid))
 
-pb = txtProgressBar(min = 0, max = all, initial = 0, style = 3)
+# pb = txtProgressBar(min = 0, max = all, initial = 0, style = 3)
 
 # Loop to run MARSHAL with the selected simulation parameters.
 
@@ -436,7 +433,7 @@ for(exa in unique(all_roots$ex)){# Example of RSA
         for(hum in unique(soil$humid)){ # Scenario of water potential in the soil
 
         # Progression bar
-        setTxtProgressBar(pb,k)
+        # setTxtProgressBar(pb,k)
         
         # Select specific Soil for the simulation
         temp_soil <- soil %>% 
@@ -535,16 +532,13 @@ for(exa in unique(all_roots$ex)){# Example of RSA
 
 ```
 
-
-
-
 ## Results :
 
 Once the simulation are computed, it is possible to visualize the output on a various form
 
 ### Standard uptake fraction 
 
-```{r suf on roots, echo=FALSE}
+```{r suf on roots, echo=FALSE, fig.cap="Standard uptake fraction of the different root systsem architecture"}
 
 new_all_roots%>%
   filter(age == "60",
@@ -554,15 +548,16 @@ new_all_roots%>%
   ggplot()+
   theme_classic()+
   coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf), alpha = 0.8)+
+  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log10(suf1)), alpha = 0.8)+
   facet_grid( ~ ex, labeller = as_labeller(babbel)) + 
-  scale_color_viridis_c()
+  scale_color_viridis_c()+
+  labs(colour = "log(SUF) (-)")
 
 ```
 
-The absorption
+### The radial fluxes
 
-```{r jr on roots, echo=FALSE, warning=F}
+```{r jr on roots, echo=FALSE, error= F, warning=F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario"}
 
 new_all_roots%>%
   filter(age == "60",
@@ -571,27 +566,30 @@ new_all_roots%>%
   ggplot()+
   theme_classic()+
   coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log(jr)), alpha = 0.8)+
+  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log10(jr)), alpha = 0.8)+
   facet_grid(ex ~ humid, labeller = as_labeller(babbel)) + 
-  scale_color_viridis_c()
+  scale_color_viridis_c()+
+  labs(colour = "Radial fluxes \nlog10(cm³/day)")+
+  ylab("Depth (cm)")
 
 ```
 
-The axial fluxes
+### The axial fluxes
 
-```{r jxl on roots, echo=FALSE, warning=F}
+```{r jxl on roots, echo=FALSE, warning=F, error= F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario"}
 
 new_all_roots%>%
   filter(age == "60",
          rep == nrep,
          scenario == 1) %>%
-  mutate(log_Jxl = log(jxl))%>%
   ggplot()+
   theme_classic()+
   coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log_Jxl), alpha = 0.8)+
+  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log10(jxl)), alpha = 0.8)+
   facet_grid(ex ~ humid, labeller = as_labeller(babbel)) + 
-  scale_color_viridis_c()
+  scale_color_viridis_c()+
+  labs(colour = "Axial fluxes \nlog10(cm³/day)")+
+  ylab("Depth (cm)")
 
 ```
 
@@ -776,7 +774,7 @@ dens <- new_all_roots%>%
 
 
 
-```{r graph dens root, echo = F, warning=F}
+```{r graph dens root, echo = F, warning=F, fig.cap="Root length density"}
 dens%>%
   filter(age == 60,
          scenario == min(scenario),
@@ -793,7 +791,7 @@ dens%>%
 
 ```
 
-```{r dens suf 1, echo = F, warning=F}
+```{r dens suf 1, echo = F, warning=F, fig.cap="Evolution of the SUF with Leitner 2010 RSA parameter"}
 dens%>%
   filter(ex == unique(dens$ex)[1],
          scenario == 1,
@@ -811,7 +809,7 @@ dens%>%
 
 ```
 
-```{r dens suf 2, echo = F, warning=F}
+```{r dens suf 2, echo = F, warning=F, fig.cap="Evolution of the SUF with Postma 2011 RSA parameter"}
 dens%>%
   filter(ex == unique(dens$ex)[2],
          scenario == 1,
@@ -828,11 +826,11 @@ dens%>%
 
 ```
 
-```{r dens suf 3, echo = F, warning=F}
+```{r dens suf 3, echo = F, warning=F, fig.cap="Evolution of the SUF with Leitner 2014 RSA parameter"}
 dens%>%
   filter(ex == unique(dens$ex)[3],
          scenario == 1,
-         age > 10)%>%
+         age > 20)%>%
   ggplot(aes(rz1, su1, colour=factor(type))) + 
   geom_line(alpha = 0.8) +
   #geom_smooth(se=F, alpha = 0.1, method = "gam") +
@@ -876,24 +874,22 @@ dens%>%
   facet_grid(ex~humid, scales = "free", labeller = as_labeller(babbel))
 ```
 
-```{r psi}
+```{r psi, echo=F, warning= F, fig.cap="Water pressure head at the soil-root interface"}
 dens%>%
   filter(age == 50,
-         humid == unique(dens$humid)[3],
          scenario == 2)%>%
   ggplot(aes(rz1, p, colour=factor(type))) + 
-  geom_line(alpha = 0.5) +
-  geom_smooth(se=F) +
+  geom_line(alpha = 0.8) +
+  #geom_smooth(se=F) +
   coord_flip() +  
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("psi (hPa)")+
   theme(axis.text.x=element_text(angle=90)) +
-  facet_wrap(~ex, labeller = as_labeller(babbel))
+  facet_grid(humid~ex, labeller = as_labeller(babbel))
 ```
 
-```{r krs, echo = F, warning = F}
-
+```{r krs, echo = F, warning = F, fig.cap="Evolution of the whole root system conductance. Effect comparison between root system architecture and root conductivity modification."}
 results%>%
   ggplot(aes(x= age, y = krs, colour = factor(ex)))+
   geom_point(aes(shape = factor(scenario)),size = 2, alpha = 0.5)+
@@ -906,7 +902,6 @@ results%>%
 ```
 
 ```{r transp, warning= F}
-
 Transpiration<- results%>%
   mutate(humid = as.character(humid))%>%
   group_by(age, rep, scenario, humid, ex)%>%
@@ -939,22 +934,22 @@ The actual transpiration under drought whith two scenarion of conductivities
 
 Transpiration%>%
     filter(humid %in% c("-7000", "-15000"))%>%
-  group_by(ex, humid, age, scenario)%>%
+  group_by(ex, humid, age, scenario, rep)%>%
   summarise(Tact = mean(Tact),
             Tpot = mean(Tpot))%>%
 
   ggplot(aes(x= age, y = Tact, colour = factor(ex)))+
-  geom_point(aes(shape = factor(scenario)),size = 2, alpha = 0.5)+
-  geom_line(aes(x = age, y = Tpot, colour = factor(ex),
-                linetype = factor(scenario)), alpha = 0.8)+
+  geom_point(aes(shape = factor(scenario)),size = 2.5, alpha = 0.4)+
+  geom_smooth(aes(x = age, y = Tpot, colour = factor(ex),
+                linetype = factor(scenario)), alpha = 0.5, se = F)+
   geom_hline(yintercept = 0)+
   theme_classic()+
   xlab("Time (d)") +
   ylab("Actual transpiration")+
-  labs(colour = "Root architecture example")+  labs(colour = "Root architecture example",
+  labs(colour = "RSA example")+  labs(colour = "RSA example",
        shape = "scenario",
        linetype = "scenario")+
-  facet_grid(~humid, labeller = as_labeller(babbel))
+  facet_wrap(~humid, labeller = as_labeller(babbel))
 
 ```
 
