@@ -14,11 +14,11 @@ subtitle: MARSHAL pipeline
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "~/GitHub/marshal-pipeline")
 ```
-
+***
 
 # Introduction
 
-The coupling of models with one another can be use to find releavant sequence of information. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that MARSHAL need an explicit root system architecture to add on the hydraulic part. CRootBox is precisely a model that compute the explicit root system architecture and marshal was designed to accept easyli the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall.
+The coupling of models with one another can be use to find releavant sequence of information. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that MARSHAL need an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture and **MARSHAL** was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall.
 
 ## How to use MARSHAL in a R environment
 
@@ -83,7 +83,7 @@ The bondary condition to MARSHAL are :
 
 The hydraulic properties of the root system can be found in the litterature, by measuring it on root samples or with the helps of modelling tools. Here, the conductivities of the root come from the Doussan et al. 1998 paper. To show some possibilities, two scenarios were built from this Doussan et al. table of conductivities. The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex. And the third, is the opposite of the second, thus the maturity of the root anatomy, insted of being advance towards the apex, is moved backwards.
 
-### The axial conductance
+#### The axial conductance
 
 ```{r BC conductivities, warning= F, echo=F, fig.cap= "Axial conductance on axes and lateral root type"}
 # Conductivities from Doussan et al. 1998
@@ -120,7 +120,7 @@ conductivities %>%
 
 ```
 
-### The radial conductivity
+#### The radial conductivity
 
 ```{r BC Kr, warning= F, echo= F}
 #Evolution of Kr along the root types
@@ -138,7 +138,7 @@ conductivities %>%
 
 ```
 
-## Root architecture with CRootBox
+## Root system architecture with CRootBox
 
 Modelling root system architecture can be achieve with CRootBox for instance. Some examples of the parametre files for a couples of specieses are details in the *modelparameter* folder, which is linked to the CRootBox depository.
 
@@ -151,20 +151,20 @@ For the purpose of the example we choose to work with three parameter file of Ma
 - "Zea_mays_4_Leitner_2014"
 
 ```{r all_roots, eval=T, echo=T, warning=F, message= F}
-#Number of repetion per root system architecture example
+# Number of repetion per root system architecture example
 nrep <- 5
 
-#List of three CrootBox parameter for corn
+# List of three CrootBox parameter for corn
 param_choise <- c("Zea_mays_1_Leitner_2010",
                   "Zea_mays_3_Postma_2011",
                   "Zea_mays_4_Leitner_2014")
 
 all_roots <- NULL
 for(param_name in param_choise){
-  #Load param of the selected example
+  # Load param of the selected example
   rparam <- read_rparam(path = paste0("./www/", param_name, ".rparam"))
   pparam <- read_pparam(path = paste0("./www/", param_name, ".pparam"))
-  #overwrite the param files that will be use
+  # Overwrite the param files that will be use
   write_rparam(rparam, "./www/param.rparam")
   write_pparam(pparam, "./www/param.pparam")
   
@@ -186,8 +186,9 @@ for(param_name in param_choise){
   }
 }
 
-write_csv(all_roots, "all_roots.csv")
-#all_roots <- read.csv("all_roots.csv")
+# Saving the root system information
+# write_csv(all_roots, "all_roots.csv")
+# all_roots <- read.csv("all_roots.csv")
 
 # Take the same time variable as the one that were implemented in CRootBox.
 full_time <- sort(unique(as.numeric(all_roots$age)))
@@ -197,10 +198,11 @@ ntimesteps = endTime/time_step
 
 ```
 
+#### The root system architecture
+
 The following figure shows the root system architectures that come out CRootBox at the half of the simulation time.
 
 ```{r roots, echo=FALSE, fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days "}
-
 all_roots%>%
   filter(age == "30",
          rep < 6) %>%
@@ -210,21 +212,23 @@ all_roots%>%
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.2)+
   geom_hline(yintercept = 0, color = "tan3")+
   facet_grid(ex ~ rep, labeller = as_labeller(babbel))
-
-
-
 ```
+### Architectural phenes
 
-With CRootBox, it is easy to access to the convex hull.
+Once the complete root system architecture is computed there are a number of architetural phenes that we can access.
 
-```{r Convex hull, echo = F, fig.cap="Convex hull of the root system examples x and y axes mixed"}
+#### The convex hull
+
+The convex hull is one of the most commun known traits to works with. It gives a qualitative information about root exploration. To find the convex hull with an explicit root system in 3D is straight forwards. Thanks to the chull function, we are able to identify all the coordinates that make the convex hull and the Polygon function in the sp package allows us to determine the area of the convex hull.
+
+```{r Convex hull, warning=F}
 root_20 <- all_roots%>%
   filter(age %in% c("20","40","60")) 
 pol_ch = poly_area<- NULL
 for(i in unique(all_roots$ex)){
   for(j in unique(all_roots$rep)){
     for(ag in unique(root_20$age)){
-      for(xy in c("x", "y")){# get the convex hull from the two sides
+      for(xy in c("x", "y")){# get the convex hull from two sides
     tmp <- root_20%>%
       filter(ex == i, rep == j, age == ag)%>%
       select(paste0(xy,"2"),z2, ex, rep, age)
@@ -251,6 +255,11 @@ for(i in unique(all_roots$ex)){
   }
 }
 
+```
+
+
+```{r , echo = F, fig.cap="Convex hull of the root system examples x and y axes together" }
+
 pol_ch%>%
   ggplot()+
   theme_classic()+
@@ -263,7 +272,7 @@ pol_ch%>%
 
 ```
 
-as well as the area of the convex hull.
+#### The area of the convex hull.
 
 ```{r area of convex hull, echo=F, fig.cap="Area of the convex hull of the different root system examples"}
 
@@ -280,22 +289,15 @@ poly_area%>%
   
 
 ```
-The maximal rooting depth
 
+#### The maximal rooting depth
 ```{r graph density, echo=T}
-
+# Summarise the total root length and the rooting depth information. 
 RLD <- all_roots%>%
   mutate(age = as.numeric(age))%>%
   group_by(age, rep, ex)%>%
   summarise(root = sum(length),
             rooting_depth = min(z2))
-RD <- all_roots%>%
-  mutate(age = as.numeric(age))%>%
-  group_by(age, ex)%>%
-  summarise(rooting_depth = min(z2),
-            rDepth = mean(rooting_depth))%>%
-  as.data.frame()
-
 ```
 
 ```{r rooting depth, echo=F, fig.cap="Rooting depth of the different root system examples" }
@@ -310,7 +312,7 @@ RLD %>%
   guides(colour = F)
 ```
 
-The total root length
+#### The total root length
 
 ```{r root length, echo= F, fig.cap="Total root length for each of the root system examples"}
 RLD %>%
@@ -322,8 +324,9 @@ RLD %>%
   labs(colour = "RSA example")+
   ylab("Total root length (m)")+
   xlab("Time (d)")
-
 ```
+
+#### Number of roots.
 
 ```{r root tip number, echo= F, fig.cap="Number of different roots for each of the root system examples"}
 all_roots%>%
@@ -337,18 +340,28 @@ all_roots%>%
   labs(colour = "RSA example")+
   ylab("Number of roots")+
   xlab("Time (d)")
-
 ```
 
+Although the total root length reach a close value of ten meter for all the different rootsystems, there is a huge gap in term of number of roots between each of the root system architecture.
+
+## The water soil potential
+
 The pressure head of the water potential within the soil is created from the followig line of code.
-Here, there are three soil scenarios with three different coeficient in the drying function.
+Here, there are three soil scenarios with three different coeficients in the drying function.
 
 The drying function is :
 
-> $psi_i = \alpha x (z_i+L)^{10} x Time_i / (L^{10} x Time_{end}) -230 $
+ $ \psi_i = \alpha \times \frac{(Z_i+L)^{10} \times T_i}{L^{10} \times T_{end}} -230$
+ 
+- $ \psi_i $ = water potential in the soil at i cm below the surface.
+- $ \alpha $ = drying coefficient of the soil (-300 = "humid", -7000 = "dry" and -15.000 = "arid").
+- $ Z_i$ = the depth (cm)
+- $ L $ = the maximal soil profile depth.
+- $ T $ = the simulation time (day)
+- -230 is the water potential in the soil at the field cappacity for a silty soil.
 
 ```{r plot water soil potential}
-# Créating the soil
+# Creating the soil
 profile_depth <- 150
 z <- seq(-profile_depth, 0, by = 5)
 value <- sort(rep(full_time, length(z)))
@@ -367,7 +380,13 @@ soil_tmp <- soil_tmp%>%
 soil<- rbind(soil, soil_tmp)
 
 }
+```
 
+## The water potential at the collar
+
+Expressed in hecto-Pascal, the pressure head define the transpiration strenght that drags the water out of the root system. $-15.000 \ hPa$
+
+```{r}
 # Water potential at the collar (hPa)
 tpots <- -15000
 ```
@@ -459,7 +478,7 @@ for(exa in unique(all_roots$ex)){# Example of RSA
         
         # Keep the information about the very detail hydrological parameter on
         # all the root segment only for one repetion of the plant per simulation.
-        if(re == nrep){
+        if(re >= nrep-1){
         # Format dataset to be compatible with MARSHAL output
         first <- temp_root[temp_root$node1ID == 0,]
         nodals_ids <- unique(temp_root$branchID[temp_root$type == 4 | 
@@ -737,19 +756,27 @@ new_all_roots%>%
 
 ```
 
+To look at the different hydraulic marco-properties along the profile depth, we took the mean values of the variable total on every two centimeters. 
 
-```{r graph dens root, warning=F}
+```{r dens}
+# For the two repetions on which we have values on each segment,
+# we take the mean values of the sum of each variables.  
 dens <- new_all_roots%>%
   mutate(age = as.numeric(age))%>%
-  group_by(type, age, rz1 = round(z1/2)*2, scenario, ex, humid)%>%
-  summarise(root = sum(length),
-            su = sum(suf),
-            su1 = sum(suf1),
-            j = sum(jr),
-            jx = sum(jxl),
-            p = sum(psi),
-            kr = sum(kr))
+  group_by(type, age, rz1 = round(z1/2)*2, # on every two cm of the profile  
+           scenario, ex, humid)%>%
+  summarise(root = sum(length)/2, # The mean of the sum on the two repetitions
+            su = sum(suf)/2,
+            su1 = sum(suf1)/2,
+            j = sum(jr)/2,
+            jx = sum(jxl)/2,
+            p = sum(psi)/2,
+            kr = sum(kr)/2)
+```
 
+
+
+```{r graph dens root, echo = F, warning=F}
 dens%>%
   filter(age == 60,
          scenario == min(scenario),
@@ -766,14 +793,14 @@ dens%>%
 
 ```
 
-```{r dens suf 1, warning=F}
+```{r dens suf 1, echo = F, warning=F}
 dens%>%
   filter(ex == unique(dens$ex)[1],
          scenario == 1,
          age > 10)%>%
   ggplot(aes(rz1, su1, colour=factor(type)))+ 
   geom_line(alpha = 0.8) +
-  geom_smooth(se=F, alpha = 0.1) +
+  #geom_smooth(se=F, alpha = 0.1) +
   coord_flip() + 
   theme_classic()+
   xlab("Depth (cm)") +
@@ -784,14 +811,14 @@ dens%>%
 
 ```
 
-```{r dens suf 2, warning=F}
+```{r dens suf 2, echo = F, warning=F}
 dens%>%
   filter(ex == unique(dens$ex)[2],
          scenario == 1,
          age > 10)%>%
   ggplot(aes(rz1, su1, colour=factor(type))) + 
   geom_line(alpha = 0.8) +
-  geom_smooth(se=F, alpha = 0.1) +
+  #geom_smooth(se=F, alpha = 0.1) +
   coord_flip() +
   theme_classic()+
   xlab("Depth (cm)") +
@@ -801,14 +828,14 @@ dens%>%
 
 ```
 
-```{r dens suf 3, warning=F}
+```{r dens suf 3, echo = F, warning=F}
 dens%>%
   filter(ex == unique(dens$ex)[3],
          scenario == 1,
-         age > 20)%>%
+         age > 10)%>%
   ggplot(aes(rz1, su1, colour=factor(type))) + 
   geom_line(alpha = 0.8) +
-  geom_smooth(se=F, alpha = 0.1, method = "gam") +
+  #geom_smooth(se=F, alpha = 0.1, method = "gam") +
   coord_flip() +   
   theme_classic()+
   xlab("Depth (cm)") +
@@ -818,44 +845,38 @@ dens%>%
 
 ```
 
-```{r dens radial 2}
+```{r dens radial 2, echo = F, fig.cap="Comparison of the radial fluxes between the different soil scenarios and the root system architectures"}
 dens%>%
   filter(age == 60,
-         scenario == 1,
-         ex == unique(dens$ex)[1])%>%
+         scenario == 1
+         #,ex == unique(dens$ex)[1]
+         )%>%
   ggplot(aes(rz1, j, colour=factor(type))) + 
-  geom_line(alpha = 0.5) +
-  geom_smooth(se=F) +
+  geom_line(alpha = 0.8) +
+  #geom_smooth(se=F) +
   coord_flip() +  
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("Radial fluxes (cm³/j)")+
   theme(axis.text.x=element_text(angle=90)) +
-  facet_wrap(~humid,  scales = "free", labeller = as_labeller(babbel))
-
-
+  facet_grid(ex~humid,  scales = "free", labeller = as_labeller(babbel))
 ```
 
-```{r dens axial 2}
-
+```{r dens axial 2, fig.cap="Comparison of the axial fluxes between the different soil scenarios and the root system architectures"}
 dens%>%
   filter(age == 40,
-         scenario == 1,
-         ex == unique(dens$ex)[1])%>%
+         scenario == 1)%>%
   ggplot(aes(rz1, jx, colour=factor(type))) + 
-  geom_line(alpha = 0.5) +
-  geom_smooth(se=F) +
+  geom_line(alpha = 0.7) +
+  #geom_smooth(se=F) +
   coord_flip() +   
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("Axial fluxes (cm³/j)")+
-  facet_wrap(~humid, scales = "free", labeller = as_labeller(babbel))
-
-
+  facet_grid(ex~humid, scales = "free", labeller = as_labeller(babbel))
 ```
 
 ```{r psi}
-
 dens%>%
   filter(age == 50,
          humid == unique(dens$humid)[3],
@@ -869,10 +890,9 @@ dens%>%
   ylab("psi (hPa)")+
   theme(axis.text.x=element_text(angle=90)) +
   facet_wrap(~ex, labeller = as_labeller(babbel))
-
 ```
 
-```{r krs}
+```{r krs, echo = F, warning = F}
 
 results%>%
   ggplot(aes(x= age, y = krs, colour = factor(ex)))+
@@ -881,21 +901,20 @@ results%>%
   xlab("Time (d)") +
   ylab("Root system conductance (cm3 hPa-1 d-1)")+
   labs(colour = "Root architecture example",
-       shape = "scenario")+
-  guides(linetype = F)
-  #facet_grid(~scenario)
-
-
+       shape = "scenario",
+       linetype = "scenario")
 ```
 
-```{r transpi with water, warning= F}
+```{r transp, warning= F}
 
 Transpiration<- results%>%
   mutate(humid = as.character(humid))%>%
   group_by(age, rep, scenario, humid, ex)%>%
   summarise(Tpot = max(tpot, tact),
             Tact = min(tpot, tact))
+```
 
+```{r transpi with water, echo = F, warning= F}
 
 Transpiration%>%
   filter(humid == "-300")%>%
@@ -916,7 +935,7 @@ Transpiration%>%
 
 The actual transpiration under drought whith two scenarion of conductivities
 
-```{r transpi with dry condition}
+```{r transpi with dry condition, echo = F, warning = F}
 
 Transpiration%>%
     filter(humid %in% c("-7000", "-15000"))%>%
