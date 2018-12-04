@@ -1,11 +1,11 @@
 ---
 title: 'Getting Functionnal-structural plant model into a pipeline:'
 author: "Adrien Heymans, Felicien Meunier et Guillaume Lobet"
-date: "November 2018"
+date: "`r format (Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document:
     number_sections: yes
-subtitle: MARSHAL pipeline
+subtitle: MARSHAL-pipeline
 ---
 
 ```{r setup, include=FALSE}
@@ -212,6 +212,7 @@ all_roots%>%
   geom_hline(yintercept = 0, color = "tan3")+
   facet_grid(ex ~ rep, labeller = as_labeller(babbel))
 ```
+
 ### Architectural phenes
 
 Once the complete root system architecture is computed there are a number of architetural phenes that we can access.
@@ -258,7 +259,6 @@ for(i in unique(all_roots$ex)){
 
 
 ```{r , echo = F, fig.cap="Convex hull of the root system examples x and y axes together" }
-
 pol_ch%>%
   ggplot()+
   theme_classic()+
@@ -285,8 +285,6 @@ poly_area%>%
   labs(colour = "RSA example",
        shape = "RSA example")+
   guides(fill = F)
-  
-
 ```
 
 #### The maximal rooting depth
@@ -350,17 +348,17 @@ Here, there are three soil scenarios with three different coeficients in the dry
 
 The drying function is :
 
- $ \psi_i = \alpha \times \frac{(Z_i+L)^{10} \times T_i}{L^{10} \times T_{end}} -230$
+ $\psi_{i}$ = $\alpha \times \frac{(Z_i+L)^{10} \times T_{i}}{L^{10} \times T_{end}} -230$ 
  
-- $ \psi_i $ = water potential in the soil at i cm below the surface.
-- $ \alpha $ = drying coefficient of the soil (-300 = "humid", -7000 = "dry" and -15.000 = "arid").
-- $ Z_i$ = the depth (cm)
-- $ L $ = the maximal soil profile depth.
-- $ T $ = the simulation time (day)
+- $\psi_{i}$ = water potential in the soil at i cm below the surface.
+- $\alpha$ = drying coefficient of the soil (-300 = "humid", -7000 = "dry" and -15.000 = "arid").
+- $Z_{i}$ = the depth (cm)
+- $L$ = the maximal soil profile depth.
+- $T$ = the simulation time (day)
 - -230 is the water potential in the soil at the field cappacity for a silty soil.
 
 ```{r plot water soil potential}
-# Creating the soil
+# Creating some values for the water potential in the soil along the profile depth.
 profile_depth <- 150
 z <- seq(-profile_depth, 0, by = 5)
 value <- sort(rep(full_time, length(z)))
@@ -368,6 +366,7 @@ psi <- rep(-230, length(value))
 z <- rep(z, ntimesteps)
 
 soil <- NULL
+# Making three scenarios
 for(i in c(-300, -7000, -15000)){
 soil_tmp <- cbind(z, value, psi)%>%
   as.tibble()%>%
@@ -377,7 +376,6 @@ soil_tmp <- cbind(z, value, psi)%>%
 soil_tmp <- soil_tmp%>%
   mutate(id = 1:nrow(soil_tmp))
 soil<- rbind(soil, soil_tmp)
-
 }
 ```
 
@@ -422,7 +420,7 @@ all <- length(unique(all_roots$rep)) * length(unique(conductivities$scenario)) *
           length(unique(all_roots$age)) * length(unique(all_roots$ex)) *
           length(unique(soil$humid))
 
-# pb = txtProgressBar(min = 0, max = all, initial = 0, style = 3)
+ pb = txtProgressBar(min = 0, max = all, initial = 0, style = 3)
 
 # Loop to run MARSHAL with the selected simulation parameters.
 
@@ -528,6 +526,7 @@ for(exa in unique(all_roots$ex)){# Example of RSA
 
 # Save the results
 # write_csv(new_all_roots, "new_all_roots.csv")
+# Load the saved results
 # new_all_roots <- read.csv("new_all_roots.csv")
 
 ```
@@ -555,10 +554,114 @@ new_all_roots%>%
 
 ```
 
+#### Where are the segment with the highest contribution over the SUF.
+
+One of the major advantage of the SUF is to estimate where should be the segment that contribute to the water uptake of the plant.The smallest region on which more or less 50% of the water uptake occurs in a soil where the water potential is homogenous along the profile can be calculated.
+
+
+
+```{r}
+fif <- NULL
+for (exa in 1:length(param_choise)) {
+fi <-  new_all_roots%>%
+  filter(age == "60",
+         rep == nrep,
+         scenario == 1,
+         humid == min(humid),
+         ex == param_choise[exa])%>%
+  mutate(or_suf = sort(suf1, decreasing = T))
+
+# Distribution of the suf value
+# fi%>%
+#   ggplot(aes(x=1:nrow(fi), y = or_suf))+
+#   geom_line(color="#69b3a2")+
+#   geom_area(fill="#69b3a2", alpha=0.5)
+
+i <- 1
+k <- 0
+while(k <= 0.5){
+  k <- k + fi$or_suf[i]
+  i <- i + 1
+}
+fif <- rbind(fif, c(ex = param_choise[exa], suf = fi$or_suf[i]))%>%
+  as.tibble()%>%
+  mutate(suf = as.numeric(suf))
+}
+```
+
+```{r suf1 on Postma 2011 rsa, echo=FALSE, fig.cap="The smallest region on one Postma 2011 RSA example which contains 50 % of the SUF"}
+
+fifty <- new_all_roots%>%
+  filter(age == "40",
+         rep == nrep,
+         scenario == min(scenario),
+         suf1 >= fif$suf[2],
+         ex == param_choise[2])
+
+new_all_roots%>%
+    filter(age == "40",
+         rep == nrep,
+         scenario == min(scenario),
+         ex == param_choise[2])%>%
+  ggplot()+
+  theme_classic()+
+  coord_fixed() + 
+  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
+  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
+  #facet_wrap(~ex, nrow = 3) + 
+  scale_color_viridis_c()
+```
+
+
+```{r suf1 on Leitner 2010 rsa, echo=FALSE, fig.cap="The smallest region on one Leitner 2010 RSA example which contains 50 % of the SUF"}
+
+fifty <- new_all_roots%>%
+  filter(age == "40",
+         rep == nrep,
+         scenario == min(scenario),
+         suf1 >= fif$suf[1],
+         ex == param_choise[1])
+
+new_all_roots%>%
+    filter(age == "40",
+         rep == nrep,
+         scenario == min(scenario),
+         ex == param_choise[1])%>%
+  ggplot()+
+  theme_classic()+
+  coord_fixed() + 
+  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
+  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
+  #facet_wrap(~ex, nrow = 3) + 
+  scale_color_viridis_c()
+```
+
+```{r suf1 on Leitner 2014 rsa, echo=FALSE, fig.cap="The smallest region on one Leitner 2014 RSA example which contains 50 % of the SUF"}
+
+fifty <- new_all_roots%>%
+  filter(age == "40",
+         rep == nrep,
+         scenario == min(scenario),
+         suf1 >= fif$suf[3],
+         ex == param_choise[3])
+
+new_all_roots%>%
+    filter(age == "40",
+         rep == nrep,
+         scenario == min(scenario),
+         ex == param_choise[3])%>%
+  ggplot()+
+  theme_classic()+
+  coord_fixed() + 
+  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
+  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
+  #facet_wrap(~ex, nrow = 3) + 
+  scale_color_viridis_c()
+```
+
 ### The radial fluxes
 
 ```{r jr on roots, echo=FALSE, error= F, warning=F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario"}
-
 new_all_roots%>%
   filter(age == "60",
          rep == nrep,
@@ -571,7 +674,6 @@ new_all_roots%>%
   scale_color_viridis_c()+
   labs(colour = "Radial fluxes \nlog10(cm³/day)")+
   ylab("Depth (cm)")
-
 ```
 
 ### The axial fluxes
@@ -590,120 +692,6 @@ new_all_roots%>%
   scale_color_viridis_c()+
   labs(colour = "Axial fluxes \nlog10(cm³/day)")+
   ylab("Depth (cm)")
-
-```
-
-The smallest region on which more or less 50% of the water uptake occurs
-
-```{r suf1 on Postma 2011 rsa, echo=FALSE}
-
-fifty <- new_all_roots%>%
-  filter(age == "40",
-         rep == nrep,
-         scenario == min(scenario),
-         suf1 > 0.0005,
-         ex == param_choise[2])
-
-new_all_roots%>%
-    filter(age == "40",
-         rep == nrep,
-         scenario == min(scenario),
-         ex == param_choise[2])%>%
-  ggplot()+
-  theme_classic()+
-  coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
-  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
-  #facet_wrap(~ex, nrow = 3) + 
-  scale_color_viridis_c()
-
-
-part <- new_all_roots%>%
-  filter(age == "40",
-         rep == nrep,
-         scenario == 1,
-         humid == min(humid),
-         suf1 > 0.0005,
-         ex == param_choise[2]
-         )%>%
-  group_by(ex)%>%
-  summarise(high = sum(suf1))
-part
-
-```
-
-```{r suf1 on Leitner 2010 rsa, echo=FALSE}
-
-fifty <- new_all_roots%>%
-  filter(age == "40",
-         rep == nrep,
-         scenario == min(scenario),
-         suf1 > 0.0006,
-         ex == param_choise[1])
-
-new_all_roots%>%
-    filter(age == "40",
-         rep == nrep,
-         scenario == min(scenario),
-         ex == param_choise[1])%>%
-  ggplot()+
-  theme_classic()+
-  coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
-  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
-  #facet_wrap(~ex, nrow = 3) + 
-  scale_color_viridis_c()
-
-
-part <- new_all_roots%>%
-  filter(age == "40",
-         rep == nrep,
-         scenario == 1,
-         humid == min(humid),
-         suf1 > 0.0006,
-         ex == param_choise[1]
-         )%>%
-  group_by(ex)%>%
-  summarise(high = sum(suf1))
-part
-
-```
-
-```{r suf1 on Leitner 2014 rsa, echo=FALSE}
-
-fifty <- new_all_roots%>%
-  filter(age == "40",
-         rep == nrep,
-         scenario == min(scenario),
-         suf1 > 0.00215,
-         ex == param_choise[3])
-
-new_all_roots%>%
-    filter(age == "40",
-         rep == nrep,
-         scenario == min(scenario),
-         ex == param_choise[3])%>%
-  ggplot()+
-  theme_classic()+
-  coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
-  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
-  #facet_wrap(~ex, nrow = 3) + 
-  scale_color_viridis_c()
-
-
-part <- new_all_roots%>%
-  filter(age == "40",
-         rep == nrep,
-         scenario == 1,
-         humid == min(humid),
-         suf1 > 0.00215,
-         ex == param_choise[3]
-         )%>%
-  group_by(ex)%>%
-  summarise(high = sum(suf1))
-part
-
 ```
 
 
@@ -718,7 +706,19 @@ new_all_roots%>%
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = kr), alpha = 0.8)+
   facet_grid(ex~scenario, labeller = as_labeller(babbel)) + 
   scale_color_viridis_c()
+```
 
+```{r kx on roots, echo=FALSE}
+
+new_all_roots%>%
+  filter(age == "60",
+         rep == nrep) %>%
+  ggplot()+
+  theme_classic()+
+  coord_fixed() + 
+  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = kx), alpha = 0.8)+
+  facet_grid(ex~scenario, labeller = as_labeller(babbel)) + 
+  scale_color_viridis_c()
 ```
 
 

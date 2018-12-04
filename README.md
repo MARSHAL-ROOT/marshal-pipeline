@@ -23,8 +23,21 @@ library(marshal)
 
 ### Run CRootBox
 
+The "a" executer
+
 ## Run MARSHAL
 
-##Visualize the output 
+`getSUF` function to add hydraulic macro-properties on a root system architecture
+
+### output
+- Krs
+- Transpiration
+- SUF, Kr \& Kx
+- Radial and Axial water fluxes
+- water pressure head at the soil-root interface 
+
+#### Visualize the output
+
+# Reference
 
 
