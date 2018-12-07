@@ -17,6 +17,9 @@ library(marshal)
 ## Load or create MARSHAL input
 
 - Soil water potential along the depth profile
+
+![](www/soil.PNG)
+
 - Root type conductivities (e.g. Doussan et al., 1998)
 - Water pressure head at the collar
 - Root system architecture (CRootBox)
@@ -39,3 +42,5 @@ The "a" executer
 #### Visualize the output
 
 ![](www/radial.PNG)
+![](www/radial2.PNG)
+
