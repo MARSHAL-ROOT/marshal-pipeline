@@ -1,7 +1,3 @@
----
-bibliography : R/bibliography.bib
----
-
 # marshal-pipeline
 How to use MARSHAL from the R environment
 
@@ -21,9 +17,9 @@ library(marshal)
 ## Load or create MARSHAL input
 
 - Soil water potential along the depth profile
-- Root type conductivities (e.g. Doussan et al., 1998) [-@Doussan]
+- Root type conductivities (e.g. Doussan et al., 1998)
 - Water pressure head at the collar
-- Root system architecture (CRootBox [@CrootBox])
+- Root system architecture (CRootBox)
 
 ### Run CRootBox
 
@@ -42,10 +38,4 @@ The "a" executer
 
 #### Visualize the output
 
-![](R/PipelineMARSHAL_files/figure-latex/radial.png)
-
-####
-
-# References
-
-
+![](www/radial.png)
