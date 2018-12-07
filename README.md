@@ -38,4 +38,4 @@ The "a" executer
 
 #### Visualize the output
 
-![](www/radial.png)
+![](www/radial.PNG)

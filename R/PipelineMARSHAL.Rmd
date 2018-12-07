@@ -4,7 +4,7 @@ author: "Adrien Heymans, Felicien Meunier et Guillaume Lobet"
 date: "`r format (Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document:
-    number_sections: yes
+    number_sections: no
 subtitle: MARSHAL-pipeline
 bibliography: bibliography.bib
 ---
@@ -38,6 +38,7 @@ library(marshal)
 MARSHAL is built upon a handfull of other packages that need to be loaded. One groupe of function has to be loaded manually and is stored :
 
 - https://github.com/MARSHAL-ROOT/marshal-pipeline/R/
+
 
 ```{r preambule, echo=T, warning=F, message=F}
 library(data.table)
@@ -108,7 +109,7 @@ conduct_3$x[which(conduct_3$x %!in% c(0, 100))] <- conduct_3$x[which(conduct_3$x
 conductivities <- rbind(conduct_2, conduct_1, conduct_3)
 ```
 
-```{r , warning= F, echo=F, fig.pos="!h", fig.cap= "Axial conductance on axes and lateral root type", fig.height= 4}
+```{r , warning= F, echo=F, fig.pos="!h", fig.cap= "Axial conductance on axes and lateral root type", fig.height= 2.5}
 
 # Evolution of Kx along the root types
 conductivities %>%
@@ -127,7 +128,7 @@ conductivities %>%
 
 ### The radial conductivity
 
-```{r BC Kr, warning= F, echo= F, fig.cap= "Radial conductivity on axes and lateral root type", fig.height= 4}
+```{r BC Kr, warning= F, echo= F, fig.cap= "Radial conductivity on axes and lateral root type", fig.height= 2.5}
 #Evolution of Kr along the root types
 conductivities %>%
   filter(type == "kr",
@@ -151,9 +152,9 @@ Modelling root system architecture can be achieve with CRootBox for instance [@C
 
 For the purpose of the example we choose to work with three parameter file of Maize: 
 
-- "Zea_mays_3_Postma_2011"
-- "Zea_mays_1_Leitner_2010"
-- "Zea_mays_4_Leitner_2014"
+- *Zea_mays_3_Postma_2011*
+- *Zea_mays_1_Leitner_2010*
+- *Zea_mays_4_Leitner_2014*
 
 ```{r all_roots, eval=T, echo=T, warning=F, message= F}
 # Number of repetion per root system architecture example
@@ -174,7 +175,9 @@ for(param_name in param_choise){
   write_pparam(pparam, "./www/param.pparam")
   
   for(i in c(1:nrep)){
-  # Run CRootBox ----
+   ################  
+  #  Run CRootBox  #
+   ################
   system("www/a.exe")
 
   # Get all the files exported by CRootBox
@@ -187,7 +190,7 @@ for(param_name in param_choise){
     temp$rep <- i
     temp$ex <- param_name
     all_roots <- rbind(all_roots, temp)
-  }
+    }
   }
 }
 
@@ -205,9 +208,11 @@ ntimesteps = endTime/time_step
 
 ### The root system architecture
 
-The following figure shows the root system architectures that come out CRootBox at the half of the simulation time.
+The figure \ref{fig:roots} shows the root system architectures that come out CRootBox at the half of the simulation time (30 days).
+Inside the **CRootBox** implementation for this example, the root growth has been restricted to the below ground level for a more realistic point of view. Some segments were not build up to the whole root system because they were shorter than the spatial resolution of the root system.
 
-```{r roots, echo=FALSE, fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days ", fig.pos = "!h", fig.height=9}
+
+```{r roots, echo=FALSE, fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days ", fig.pos = "!h", fig.height=6}
 all_roots%>%
   filter(age == "30",
          rep < 6) %>%
@@ -222,6 +227,15 @@ all_roots%>%
 ### Architectural phenes
 
 Once the complete root system architecture is computed there are a number of architetural phenes that we can access.
+
+- the area of the convex hull
+- the rooting depth
+- the root length density along the soil profile
+- the number of individual roots per root system
+- the total length of the root system
+- ...
+
+here we summarize briefly with a couple of figure, the different architectural phenes which can be mesure.
 
 #### The convex hull
 
@@ -291,14 +305,8 @@ poly_area%>%
          shape = F)
 
 ```
-#### The convex hull area.
-
-The area shows a estimation of root exploration surface
-
-
 
 #### The maximal rooting depth
-
 
 
 ```{r graph density, echo=T}
@@ -310,7 +318,9 @@ RLD <- all_roots%>%
             rooting_depth = min(z2))
 ```
 
-```{r rooting depth, echo=F, fig.cap="Rooting depth of the different root system examples", fig.pos = "!h", fig.height=4}
+
+
+```{r rooting depth, echo=F, fig.cap="Rooting depth of the different root system examples", fig.pos = "!h", fig.height=2.5}
 
 RLD %>%
   ggplot(aes(age, rooting_depth))+
@@ -327,7 +337,7 @@ RLD %>%
 
 #### The total root length
 
-```{r root length, echo= F, fig.cap="Total root length for each of the root system examples", fig.pos = "!h", fig.height= 4}
+```{r root length, echo= F, fig.cap="Total root length for each of the root system examples", fig.pos = "!h", fig.height= 2.5}
 RLD %>%
   ggplot(aes(age, root/1000, colour = factor(ex)))+
   geom_point(size = 2, alpha = 0.5)+
@@ -341,7 +351,7 @@ RLD %>%
 
 #### Number of roots.
 
-```{r root tip number, echo= F, fig.cap="Number of different roots for each of the root system examples", fig.pos = "!h", fig.height = 4}
+```{r root tip number, echo= F, fig.cap="Number of different roots for each of the root system examples", fig.pos = "!h", fig.height = 2.5}
 all_roots%>%
   group_by(age, ex, rep)%>%
   summarise(tip = max(sort(unique(branchID))))%>%
@@ -395,7 +405,7 @@ soil<- rbind(soil, soil_tmp)
 }
 ```
 
-```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile", fig.pos = "!h", fig.height=3}
+```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile", fig.pos = "!h", fig.height=2}
 soil %>%
   filter(value %in% c(10,30,50,60))%>%
   ggplot(aes(psi, z, colour = factor(value)))+
