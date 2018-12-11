@@ -5,6 +5,8 @@ date: "`r format (Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document:
     number_sections: no
+header-includes:
+  - \usepackage{subfig}
 subtitle: MARSHAL-pipeline
 bibliography: bibliography.bib
 ---
@@ -18,7 +20,7 @@ knitr::opts_knit$set(root.dir = "~/GitHub/marshal-pipeline")
 
 # Introduction
 
-The coupling of models with one another can be use to find releavant sequence of information. This can creat a network of data that can be use to answer complex questions which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** need an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox].
+The coupling of models with one another can be use to find releavant sequence of information. This can create a network of data that can be use to answer complex questions which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** need an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox].
 
 ## How to use MARSHAL in a R environment
 
@@ -48,7 +50,7 @@ library(readxl)
 library(cowplot)
 library(xml2)
 library(knitr)
-#library(marshal) # ! not working 
+#library(marshal) # ! not working
 `%!in%` <- compose(`!`, `%in%`)
 
 source("R/io_function.R")
@@ -66,8 +68,8 @@ babbel <- c("all_rain" = "rain all time",
            "1" = "1", "2"= "2", "3"="3", "4" = "4", "5"="5",
            "10" = "10", "20" = "20", "30" = "30", "40" = "40",
            "50" = "50", "60"= "60",
-           "Doussan et al." = "Doussan et al.", "Early Doussan et al." = "Early",
-           "Late Doussan et al." = "Late",
+           "Doussan et al. \n" = "Doussan et al.", "Early Doussan et al. \n" = "Early",
+           "Late Doussan et al. \n" = "Late",
            "type_1" = "Axes", "type_2" = "Lateral",
            "-300" = "humid", "-7000" = "dry", "-15000" = "arid")
 ```
@@ -109,7 +111,7 @@ conduct_3$x[which(conduct_3$x %!in% c(0, 100))] <- conduct_3$x[which(conduct_3$x
 conductivities <- rbind(conduct_2, conduct_1, conduct_3)
 ```
 
-```{r , warning= F, echo=F, fig.pos="!h", fig.cap= "Axial conductance on axes and lateral root type", fig.height= 2.5}
+```{r, results = 'asis', warning= F, echo=F, fig.pos="!h", fig.cap= "Conductivities properties on axes and lateral root type.", fig.subcap= c("Axial conductance.", "Radial conductivity."), fig.scap=NA, out.width='.40\\linewidth', fig.width=4, fig.height=4,fig.show='hold',fig.align='center'}
 
 # Evolution of Kx along the root types
 conductivities %>%
@@ -120,15 +122,12 @@ conductivities %>%
   theme_classic()+
   xlab("distance from the tips (cm)") +
   ylab("Axial conductance (cm4 hPa-1 d-1)")+
-  labs(colour = "Conductivity \nscenarios",
-       linetype = "Conductivity \nscenarios")+
+  guides(colour = F,
+         linetype = F)+
+  #labs(colour = "Conductivity \nscenarios",
+  #     linetype = "Conductivity \nscenarios")+
   facet_wrap(~order, scales = "free", labeller =as_labeller(babbel))
 
-```
-
-### The radial conductivity
-
-```{r BC Kr, warning= F, echo= F, fig.cap= "Radial conductivity on axes and lateral root type", fig.height= 2.5}
 #Evolution of Kr along the root types
 conductivities %>%
   filter(type == "kr",
@@ -138,8 +137,9 @@ conductivities %>%
   theme_classic()+
   xlab("distance from the tips (cm)")+
   ylab("Radial conductivity (cm hPa-1 d-1)")+
-  labs(colour = "Conductivity \nscenarios")+
-  guides(linetype = F)+
+  labs(colour = "Conductivity \nscenarios",
+       linetype = "Conductivity \nscenarios")+
+  theme(legend.position = "top", legend.direction = "vertical" )+
   facet_wrap(~order, scales = "free", labeller =as_labeller(babbel))
 
 ```
@@ -278,7 +278,7 @@ for(i in unique(all_roots$ex)){
 ```
 
 
-```{r , echo = F, fig.cap="Area of the convex hull for the different root system architecture examples. (left) superposition of all the convex hull repetitions. (right) area in square meter of each convex hull. $\\bigtriangleup$ = Postma 2011, $\\square$ = Leitner 2014, and $\\bigcirc$ = Leitner 2010 RSA example" , fig.pos = "!h", out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
+```{r , echo = F, fig.cap="Area of the convex hull for the different root system architecture examples. $\\bigtriangleup$ = Postma 2011, $\\square$ = Leitner 2014, and $\\bigcirc$ = Leitner 2010 RSA example", fig.subcap=c("Superposition of all the convex hull repetitions.", "The area of each convex hull."), fig.pos = "!h", out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
 pol_ch%>%
   ggplot()+
   theme_classic()+

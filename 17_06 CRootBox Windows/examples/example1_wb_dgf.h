@@ -56,7 +56,7 @@ void example1_wb_dgf()
     /*
      * Export segments in RSML format
      */
-    //rootsystem.write(name+".rsml");
+    rootsystem.write(name+".rsml");
 
     /*
      * Export dgf format

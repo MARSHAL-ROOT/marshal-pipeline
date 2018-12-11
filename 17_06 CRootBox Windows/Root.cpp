@@ -404,7 +404,7 @@ void Root::addNode(Vector3d n, double t)
 void Root::writeRSML(std::ostream & cout, std::string indent) const
 {
 	if (this->nodes.size()>1) {
-		cout << indent << "<root id=\"" <<  id << "\">\n";  // open root
+		cout << indent << "<root id=\"" <<  id << "\" " << " type=\"" <<  param.type << "\">\n";  // open root
 
 		/* geometry tag */
 		cout << indent << "\t<geometry>\n"; // open geometry
@@ -431,6 +431,8 @@ void Root::writeRSML(std::ostream & cout, std::string indent) const
 		cout << indent << "\t</properties>\n"; // close properties
 
 		cout << indent << "\t<functions>\n"; // open functions
+		
+		// emergence time
 		cout << indent << "\t\t<function name='emergence_time' domain='polyline'>\n"; // open functions
 		cout << indent << "\t\t\t" << "<sample>" << netimes.at(0) << "</sample>\n";
 		for (size_t i = 1; i<netimes.size()-1; i+=n) {
@@ -438,8 +440,18 @@ void Root::writeRSML(std::ostream & cout, std::string indent) const
 
 		}
 		cout << indent << "\t\t\t" << "<sample>" << netimes.at(netimes.size()-1) << "</sample>\n";
-
 		cout << indent << "\t\t</function>\n"; // close functions
+		
+		
+		// diameter
+		cout << indent << "\t\t<function name='diameter' domain='polyline'>\n"; // open functions
+		cout << indent << "\t\t\t" << "<sample>" << param.a * 2 << "</sample>\n";
+		for (size_t i = 1; i<nodes.size()-1; i+=n) {
+			cout << indent << "\t\t\t" << "<sample>" << param.a * 2 << "</sample>\n";
+		}
+		cout << indent << "\t\t\t" << "<sample>" << param.a * 2 << "</sample>\n";
+		cout << indent << "\t\t</function>\n"; // close functions
+		
 		cout << indent << "\t</functions>\n"; // close functions
 
 		/* laterals roots */
