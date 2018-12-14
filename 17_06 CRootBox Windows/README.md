@@ -8,7 +8,9 @@ The code should compile with any c++11 compiler, e.g. for g++: MinGW has been te
 - Open the terminal:
 
 > cd ~/GitHub/marshal-pipeline/17_06 CRootBox Windows
+
 > g++ *.cpp -std=c++11
+
 > a.exe
 
 ***

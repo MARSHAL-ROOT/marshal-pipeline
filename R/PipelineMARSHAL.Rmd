@@ -1,10 +1,10 @@
 ---
 title: 'Getting Functionnal-structural plant model into a pipeline:'
-author: "Adrien Heymans, Felicien Meunier et Guillaume Lobet"
+author: "Adrien Heymans, Felicien Meunier, and Guillaume Lobet"
 date: "`r format (Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document:
-    number_sections: no
+    fig_caption: yes
 header-includes:
   - \usepackage{subfig}
 subtitle: MARSHAL-pipeline
@@ -20,15 +20,13 @@ knitr::opts_knit$set(root.dir = "~/GitHub/marshal-pipeline")
 
 # Introduction
 
-The coupling of models with one another can be use to find releavant sequence of information. This can create a network of data that can be use to answer complex questions which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** need an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox].
+The coupling of models with one another can be use to find releavant sequence of information. This can create a network of data that can be use to answer complex questions which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** need an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox]. The 
 
 ## How to use MARSHAL in a R environment
 
-To run this example, the marshal package is required. This package can be found on GitHub:
+To run this example, the marshal package is required. This package can be found on [GitHub](https://github.com/MARSHAL-ROOT/marshal).
 
-- https://github.com/MARSHAL-ROOT/marshal
-
-or by simply excecute the following line:
+or by simply excecute the following line in the R environment:
 
 ```{r echo=TRUE, eval=FALSE}
 install.packages("devtools")
@@ -37,9 +35,7 @@ install_github("MARSHAL-ROOT/marshal")
 library(marshal)
 ```
 
-MARSHAL is built upon a handfull of other packages that need to be loaded. One groupe of function has to be loaded manually and is stored :
-
-- https://github.com/MARSHAL-ROOT/marshal-pipeline/R/
+MARSHAL is built upon a handfull of other packages that need to be loaded. One groupe of [function](https://github.com/MARSHAL-ROOT/marshal-pipeline/R/) has to be loaded manually.
 
 
 ```{r preambule, echo=T, warning=F, message=F}
@@ -50,13 +46,14 @@ library(readxl)
 library(cowplot)
 library(xml2)
 library(knitr)
-#library(marshal) # ! not working
+
 `%!in%` <- compose(`!`, `%in%`)
 
 source("R/io_function.R")
-# Working version of MARSHAL
-source("R/getSUF.R")
 
+```
+```{r, eval=T, echo= F, warning=FALSE, message=F}
+library(marshal)
 ```
 
 ```{r eval= T, echo= F}
@@ -78,7 +75,7 @@ Once it is installed, the boundary condition on which the model works should be 
 
 # Boundary condition of MARSHAL.
 
-The bondary condition to MARSHAL are :
+The bondary condition of MARSHAL are :
 
 - The hydraulic properties of the roots.
 - The water potential of the soil.
@@ -87,9 +84,9 @@ The bondary condition to MARSHAL are :
 
 ## Hydraulic properties of the root system
 
-The hydraulic properties of the root system can be found in the litterature, by measuring it on root samples or with the helps of modelling tools. Here, the conductivities of the root come from the Doussan et al. paper [-@Doussan]. To show some possibilities, two scenarios were built from this Doussan et al. table of conductivities. The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex. And the third, is the opposite of the second, thus the maturity of the root anatomy, insted of being advance towards the apex, is moved backwards.
+The hydraulic properties of the root system can be found in the litterature, by measuring it on root samples or with the helps of modelling tools as well. Here, the conductivities of the root come from the Doussan et al. paper [-@Doussan]. To show some possibilities, three scenarios in total were built from this Doussan et al. table of conductivities. The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex. And the third, is the opposite of the second, or in other words, the maturity of the root anatomy, insted of being advance towards the apex, is moved backwards.
 
-### The axial conductance
+### The conductivities of the different root type.
 
 ```{r BC conductivities, warning= F, echo=F}
 # Conductivities from Doussan et al. 1998
@@ -146,11 +143,9 @@ conductivities %>%
 
 ## Root system architecture with CRootBox
 
-Modelling root system architecture can be achieve with CRootBox for instance [@CrootBox]. Some examples of the parametre files for a couples of specieses are details in the *modelparameter* folder, which is linked to the CRootBox depository.
+Modelling root system architecture can be achieve with CRootBox for instance [@CrootBox]. Some examples of the parametre files for a couples of specieses are details in the *modelparameter* folder, which is linked to the [CRootBox repository](https://github.com/Plant-Root-Soil-Interactions-Modelling/CRootBox).
 
-- https://github.com/Plant-Root-Soil-Interactions-Modelling/CRootBox
-
-For the purpose of the example we choose to work with three parameter file of Maize: 
+For the purpose of the example we choose to work with three parameter files of maize: 
 
 - *Zea_mays_3_Postma_2011*
 - *Zea_mays_1_Leitner_2010*
@@ -160,7 +155,7 @@ For the purpose of the example we choose to work with three parameter file of Ma
 # Number of repetion per root system architecture example
 nrep <- 5
 
-# List of three CrootBox parameter for corn
+# List of three CrootBox parameter files for corn
 param_choise <- c("Zea_mays_1_Leitner_2010",
                   "Zea_mays_3_Postma_2011",
                   "Zea_mays_4_Leitner_2014")
@@ -175,12 +170,12 @@ for(param_name in param_choise){
   write_pparam(pparam, "./www/param.pparam")
   
   for(i in c(1:nrep)){
-   ################  
+  ################## 
   #  Run CRootBox  #
-   ################
+  ##################
   system("www/a.exe")
 
-  # Get all the files exported by CRootBox
+  # Get all the .txt files exported by CRootBox
   fls <- list.files("./")
   fls <- fls[grepl("rootsystem.txt", fls)]
   
@@ -208,11 +203,11 @@ ntimesteps = endTime/time_step
 
 ### The root system architecture
 
-The figure \ref{fig:roots} shows the root system architectures that come out CRootBox at the half of the simulation time (30 days).
-Inside the **CRootBox** implementation for this example, the root growth has been restricted to the below ground level for a more realistic point of view. Some segments were not build up to the whole root system because they were shorter than the spatial resolution of the root system.
+The figure \ref{roots} shows the root system architectures that come out CRootBox at the half of the simulation time (30 days).
+Inside the CRootBox implementation for this example, the root growth has been restricted to the below ground level for a more realistic point of view. Furthermore, some segments were not build up to the whole root system because they were shorter than the spatial resolution of the root system.
 
 
-```{r roots, echo=FALSE, fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days ", fig.pos = "!h", fig.height=6}
+```{r fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days \\label{roots}", echo=FALSE, fig.pos = "!h", fig.height=3, fig.width = 7}
 all_roots%>%
   filter(age == "30",
          rep < 6) %>%
@@ -235,7 +230,7 @@ Once the complete root system architecture is computed there are a number of arc
 - the total length of the root system
 - ...
 
-here we summarize briefly with a couple of figure, the different architectural phenes which can be mesure.
+here we summarize briefly with a couple of figure, the different architectural phenes which can be mesured.
 
 #### The convex hull
 
@@ -255,6 +250,7 @@ for(i in unique(all_roots$ex)){
       # select(x2,z2, ex, rep, age)
     first_col <- tmp[,1]
     x <- matrix(c(first_col, tmp$z2), nc = 2)
+    # Get the incices of the unique points lying on the convex hull
     ch <- chull(x= first_col, y = tmp$z2)
     ch <- c(ch, ch[1])
     
@@ -826,6 +822,7 @@ dens <- new_all_roots%>%
            scenario, ex, humid)%>%
   summarise(root = sum(length)/2, # The mean of the sum on the two repetitions
             su = sum(suf)/2,
+            sud = sum(suf/length)/2,
             su1 = sum(suf1)/2,
             j = sum(jr)/2,
             jx = sum(jxl)/2,
@@ -960,7 +957,7 @@ dens%>%
 
 
 
-```{r krs, echo = F, warning = F, fig.cap="Evolution of the whole root system conductance. Effect comparison between root system architecture and root conductivity modification.", fig.pos = "!h", fig.height=6}
+```{r krs, echo = F, warning = F, fig.cap="Evolution of the whole root system conductance. Effect comparison between root system architecture and root conductivity modification.", fig.pos = "!h", fig.height=5, fig.width= 8}
 results%>%
   ggplot(aes(x= age, y = krs, colour = factor(ex)))+
   geom_point(aes(shape = factor(scenario)),size = 2, alpha = 0.5)+
@@ -980,7 +977,7 @@ Transpiration<- results%>%
             Tact = min(tpot, tact))
 ```
 
-```{r transpi with water, echo = F, warning= F, fig.pos = "!h"}
+```{r transpi with water, echo = F, warning= F, fig.pos = "!h", fig.height=6, fig.width=6}
 
 Transpiration%>%
   filter(humid == "-300")%>%
@@ -991,7 +988,7 @@ Transpiration%>%
   theme_classic()+
   xlab("Time (d)") +
   ylab("Actual transpiration")+
-  labs(colour = "Root architecture example")+  labs(colour = "Root architecture example",
+  labs(colour = "Root architecture example")+  labs(colour = "RSA example",
        shape = "scenario",
        linetype = "scenario")+
   #guides(linetype = F)+
@@ -1001,7 +998,7 @@ Transpiration%>%
 
 The actual transpiration under drought whith two scenarion of conductivities
 
-```{r transpi with dry condition, echo = F, warning = F, fig.pos = "!h"}
+```{r transpi with dry condition, echo = F, warning = F, fig.pos = "!h", fig.height=5}
 
 Transpiration%>%
     filter(humid %in% c("-7000", "-15000"))%>%
