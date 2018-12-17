@@ -51,12 +51,12 @@ void example1_wb_dgf()
     /*
      * Export final result (as vtp)
      */
-    rootsystem.write(name+".vtp");
+    //rootsystem.write(name+".vtp");
 
     /*
      * Export segments in RSML format
      */
-    rootsystem.write(name+".rsml");
+    //rootsystem.write(name+".rsml");
 
     /*
      * Export dgf format
