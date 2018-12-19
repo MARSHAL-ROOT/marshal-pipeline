@@ -1,8 +1,7 @@
 # marshal-pipeline
 How to use MARSHAL from the R environment
 
-... in process
-draft version PipelineMARSHAL.rmd
+[The full text PDF can be found here](https://github.com/MARSHAL-ROOT/marshal-pipeline/blob/master/PipelineMARSHAL.pdf)
 
 ## Install MARSHAL
 
@@ -16,27 +15,27 @@ library(marshal)
 
 ## Load or create MARSHAL input
 
-- Soil water potential along the depth profile
+### 1. Soil water potential along the depth profile
 
 ![](www/fig/soil.PNG)
 
-- Root type conductivities (e.g. Doussan et al., 1998)
+### 2. Root type conductivities (e.g. Doussan et al., 1998)
 
 ![](www/fig/conductivities.PNG)
 
-- Water pressure head at the collar
+### 3. Water pressure head at the collar
 
 `-15.000 hPa`
 
-- Root system architecture (CRootBox)
+### 4. Root system architecture (CRootBox)
 
-![](www/fig/RSA.PNG)
-
-### Run [CRootBox](https://plant-root-soil-interactions-modelling.github.io/CRootBox/)
+#### Run [CRootBox](https://plant-root-soil-interactions-modelling.github.io/CRootBox/)
 
 The "[a](https://github.com/MARSHAL-ROOT/marshal-pipeline/tree/master/17_06%20CRootBox%20Windows)" executer
 
-```{r}
+![](www/fig/RSA.PNG)
+
+```{r, echo = TRUE, eval = FALSE}
 source("R/io_function.R")
 
 all_roots <- NULL
@@ -76,16 +75,16 @@ for(param_name in param_choise){
 `getSUF` function to add hydraulic macro-properties on a root system architecture
 
 ### output
-- Krs
+#### Krs
 
 ![](www/fig/Krs.PNG)
 
-- Transpiration (Tpot \& Tact)
+#### Transpiration (Tpot \& Tact)
 
 In wet condition
 ![](www/fig/transpi.PNG)
 
-- SUF, Kr \& Kx
+#### SUF, Kr \& Kx
 
 Leitner 2010
 ![](www/fig/suf_l0.PNG)
@@ -94,13 +93,13 @@ Postma 2011
 Leitner 2014
 ![](www/fig/suf_l4.PNG)
 
-- Radial and Axial water fluxes
+#### Radial and Axial water fluxes
 
 ![](www/fig/radial.PNG)
 ![](www/fig/radial2.PNG)
 
-- water pressure head at the soil-root interface
+#### water pressure head at the soil-root interface
 
 ![](www/fig/psi.PNG)
 
-
+# [Source code](https://github.com/MARSHAL-ROOT/marshal-pipeline/blob/master/R/PipelineMARSHAL.Rmd) 
