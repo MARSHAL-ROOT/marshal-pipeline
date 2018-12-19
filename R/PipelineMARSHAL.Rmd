@@ -107,7 +107,7 @@ conduct_3$x[which(conduct_3$x %!in% c(0, 100))] <- conduct_3$x[which(conduct_3$x
 conductivities <- rbind(conduct_2, conduct_1, conduct_3)
 ```
 
-```{r fig.cap= "Conductivities properties on axes and lateral root type. \\label{conduct}", results = 'asis', warning= F, echo=F, fig.pos="!h",  fig.subcap= c("Axial conductance.", "Radial conductivity."), fig.scap=NA, out.width='.40\\linewidth', fig.width=4, fig.height=4,fig.show='hold',fig.align='center'}
+```{r fig.cap= "Conductivities properties on axes and lateral root type. \\label{conduct}", results = 'asis', warning= F, echo=F, fig.pos="h",  fig.subcap= c("Axial conductance.", "Radial conductivity."), fig.scap=NA, out.width='.40\\linewidth', fig.width=4, fig.height=4,fig.show='hold',fig.align='center'}
 
 # Evolution of Kx along the root types
 conductivities %>%
@@ -204,7 +204,7 @@ all_roots <- read.csv("all_roots.csv")
 
 The figure \ref{roots} shows the root system architectures that comes out CRootBox at the half of the simulation time (30 days).
 
-```{r fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days \\label{roots}", echo=FALSE, fig.pos = "!h", fig.height=3, fig.width = 7}
+```{r fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days \\label{roots}", echo=FALSE, fig.pos = "h", fig.height=3, fig.width = 7}
 all_roots%>%
   filter(age == "30",
          rep < 6) %>%
@@ -271,7 +271,7 @@ for(i in unique(all_roots$ex)){
 ```
 
 
-```{r , echo = F, fig.cap="Area of the convex hull for the different root system architecture examples. $\\bigtriangleup$ = Postma 2011, $\\square$ = Leitner 2014, and $\\bigcirc$ = Leitner 2010 RSA example", fig.subcap=c("Superposition of all the convex hull repetitions.", "The area of each convex hull."), fig.pos = "!h", out.width='.45\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
+```{r , echo = F, fig.cap="Area of the convex hull for the different root system architecture examples. $\\bigtriangleup$ = Postma 2011, $\\square$ = Leitner 2014, and $\\bigcirc$ = Leitner 2010 RSA example", fig.subcap=c("Superposition of all the convex hull repetitions.", "The area of each convex hull."), fig.pos = "h", out.width='.45\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
 pol_ch%>%
   ggplot()+
   theme_classic()+
@@ -318,7 +318,7 @@ RLD2 <- all_roots%>%
   summarise(root = sum(length)/nrep)
 ```
 
-```{r rooting depth, echo=F, fig.cap="Rooting depth of the different root system examples", fig.pos = "!h", fig.height=2.5}
+```{r rooting depth, echo=F, fig.cap="Rooting depth of the different root system examples", fig.pos = "h", fig.height=2.5}
 
 RLD %>%
   ggplot(aes(age, rooting_depth))+
@@ -337,7 +337,7 @@ RLD %>%
 
 Root length density is a major phenotypic trait mesured in field when below ground information are requested. Here we computed the total root length every ten days. So, we can observe that after 60 days, the total root length is more less the same for the three RSA example.
 
-```{r root length, echo= F, warning= F, message= F, fig.cap="The root lenght", fig.subcap=c("The total root length", "The root length density after 60 days."), fig.pos = "!h", out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
+```{r root length, echo= F, warning= F, message= F, fig.cap="The root lenght", fig.subcap=c("The total root length", "The root length density after 60 days."), fig.pos = "h", out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
 RLD %>%
   ggplot(aes(age, root/1000, colour = factor(ex)))+
   geom_smooth(alpha = 0.5)+
@@ -407,7 +407,7 @@ soil<- rbind(soil, soil_tmp)
 }
 ```
 
-```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile", fig.pos = "!h", fig.height=2.5}
+```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile", fig.pos = "h", fig.height=2.5}
 soil %>%
   filter(value %in% c(10,30,50,60))%>%
   ggplot(aes(psi, z, colour = factor(value)))+
@@ -550,7 +550,7 @@ write_csv(new_all_roots, "new_all_roots.csv")
 # Load the saved results
 new_all_roots <- read.csv("new_all_roots.csv")
 ```
-```{r}
+```{r, echo=F}
 # The previous process altered the age information. 
 new_all_roots <- new_all_roots%>%
   mutate(age = as.numeric(age)*10)
@@ -559,13 +559,13 @@ new_all_roots <- new_all_roots%>%
 
 # Results :
 
-Once the simulation are computed, it is possible to visualize the output on a various form
+Once the hydraulic part has been associated to each root segment and the marco-properties have been computed, we can visualize those under different point of view.
 
-## Standard uptake fraction (SUF)
+### Standard uptake fraction (SUF)
 
 The Standard uptake fraction is the relative distribution of root water uptake between root segments when water is equally available in space (units: %) [@Couvreur2012].
 
-```{r suf on roots, echo=FALSE, fig.cap="Standard uptake fraction of the different root systsem architecture", fig.pos = "!h", fig.height= 4}
+```{r suf on roots, echo=FALSE, fig.cap="Standard uptake fraction of the different root systsem architecture", fig.pos = "h", fig.height= 4}
 
 new_all_roots%>%
   filter(age == 60,
@@ -578,11 +578,12 @@ new_all_roots%>%
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log10(suf1)), alpha = 0.8, size = 0.3)+
   facet_grid( ~ ex, labeller = as_labeller(babbel)) + 
   scale_color_viridis_c()+
-  labs(colour = "log(SUF) (-)")
+  labs(colour = "log(SUF) (-)")+
+  ylab("Depth (cm)")
 
 ```
 
-#### Where are the segment with the highest contribution for the SUF.
+Where are the segment with the highest contribution for the SUF.
 
 One of the major advantage of the SUF is to estimate where should be the segments which contribute to the water uptake of the plant. Here we focuces on the smallest regions on which 50% of the water uptake occurs in a soil where the water potential is homogenous along the profile.
 
@@ -610,55 +611,26 @@ fif <- rbind(fif, c(ex = param_choise[exa], suf = fi$or_suf[i]))%>%
 }
 ```
 
-```{r suf1 on Postma 2011 rsa, echo=FALSE, fig.cap="The smallest region on one Postma 2011 RSA example which contains 50 % of the SUF", fig.pos = "!h", fig.height= 5}
+```{r suf1 on Postma 2011 rsa, echo=FALSE, fig.cap="The smallest region on the root system hydraulic architecture which contains 50 % of the SUF", fig.pos = "!h", fig.height=4}
 
-fifty <- new_all_roots%>%
+# Postma 2011
+fifty_p1 <- new_all_roots%>%
   filter(age == 40,
          rep == nrep,
          scenario == "Doussan et al.",
          suf1 >= fif$suf[2],
          ex == param_choise[2])
 
-new_all_roots%>%
-    filter(age == 40,
-         rep == nrep,
-         scenario == "Doussan et al.",
-         ex == param_choise[2])%>%
-  ggplot()+
-  theme_classic()+
-  coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
-  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
-  scale_color_viridis_c()
-```
-
-
-```{r suf1 on Leitner 2010 rsa, echo=FALSE, fig.cap="The smallest region on one Leitner 2010 RSA example which contains 50 % of the SUF", fig.pos = "!h", fig.height= 5}
-
-fifty <- new_all_roots%>%
+# Leitner 2010
+fifty_l0 <- new_all_roots%>%
   filter(age == 40,
          rep == nrep,
          scenario == "Doussan et al.",
          suf1 >= fif$suf[1],
          ex == param_choise[1])
 
-new_all_roots%>%
-    filter(age == 40,
-         rep == nrep,
-         scenario == "Doussan et al.",
-         ex == param_choise[1])%>%
-  ggplot()+
-  theme_classic()+
-  coord_fixed() + 
-  geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
-  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
-  #facet_wrap(~ex, nrow = 3) + 
-  scale_color_viridis_c()
-```
-
-```{r suf1 on Leitner 2014 rsa, echo=FALSE, fig.cap="The smallest region on one Leitner 2014 RSA example which contains 50 % of the SUF", fig.pos = "!h", fig.height = 5}
-
-fifty <- new_all_roots%>%
+# Leitner 2014
+fifty_l4 <- new_all_roots%>%
   filter(age == 40,
          rep == nrep,
          scenario == "Doussan et al.",
@@ -668,22 +640,20 @@ fifty <- new_all_roots%>%
 new_all_roots%>%
     filter(age == 40,
          rep == nrep,
-         scenario == "Doussan et al.",
-         ex == param_choise[3])%>%
+         scenario == "Doussan et al.")%>%
   ggplot()+
   theme_classic()+
   coord_fixed() + 
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
-  geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
-  #facet_wrap(~ex, nrow = 3) + 
-  scale_color_viridis_c()
+  geom_segment(data = fifty_l0, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
+  geom_segment(data = fifty_l4, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
+  geom_segment(data = fifty_p1, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
+  facet_wrap(~ex, ncol = 3, labeller = as_labeller(babbel)) + 
+  scale_color_viridis_c()+
+  ylab("Depth (cm)")
 ```
 
-### Other hydraulic properties.
-
-
-
-```{r jr on roots, echo=FALSE, error= F, warning=F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario", fig.pos = "!h"}
+```{r jr on roots, echo=FALSE, error= F, warning=F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario", fig.pos = "!h", fig.height=4}
 new_all_roots%>%
   filter(age == 60,
          rep == nrep,
@@ -698,7 +668,7 @@ new_all_roots%>%
   ylab("Depth (cm)")
 ```
 
-```{r jxl on roots, echo=FALSE, warning=F, error= F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario", fig.pos = "!h"}
+```{r jxl on roots, echo=FALSE, warning=F, error= F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario", fig.pos = "!h", fig.height=4}
 
 new_all_roots%>%
   filter(age == 60,
@@ -714,7 +684,7 @@ new_all_roots%>%
   ylab("Depth (cm)")
 ```
 
-```{r kr on roots, echo=FALSE, warning = F, fig.cap="The radial conductivity (Kr) on root segment, comparison between the different conductivity scenario and main root system architecure examples", fig.pos = "!h"}
+```{r kr on roots, echo=FALSE, warning = F, fig.cap="The radial conductivity (Kr) on root segment, comparison between the different conductivity scenario and main root system architecure examples", fig.pos = "!h", fig.height=4}
 
 new_all_roots%>%
   filter(age == 60,
@@ -724,10 +694,11 @@ new_all_roots%>%
   coord_fixed() + 
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = kr), alpha = 0.8, size = 0.2)+
   facet_grid(ex~scenario, labeller = as_labeller(babbel)) + 
-  scale_color_viridis_c()
+  scale_color_viridis_c()+
+  ylab("Depth (cm)")
 ```
 
-```{r kx on roots, echo=FALSE, warning = F, fig.pos = "!h", fig.cap="The axial conductance (Kx) on root segment, comparison between the different conductivity scenario and main root system architecure examples"}
+```{r kx on roots, echo=FALSE, warning = F, fig.pos = "h", fig.cap="The axial conductance (Kx) on root segment, comparison between the different conductivity scenario and main root system architecure examples", fig.height=4}
 
 new_all_roots%>%
   filter(age == 60,
@@ -737,12 +708,11 @@ new_all_roots%>%
   coord_fixed() + 
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = kx), alpha = 0.8, size = 0.2)+
   facet_grid(ex~scenario, labeller = as_labeller(babbel)) + 
-  scale_color_viridis_c()
+  scale_color_viridis_c()+
+  ylab("Depth (cm)")
 ```
 
-
-
-```{r evolution jr on roots, echo=FALSE, warning=F, fig.pos = "!h", fig.cap = "Absorption dynamics due to different soil scenarios on the Postma root system architecture example"}
+```{r evolution jr on roots, echo=FALSE, warning=F, fig.pos = "h", fig.cap = "Absorption dynamics due to different soil scenarios on the Postma root system architecture example", fig.height=4}
 
 new_all_roots%>%
   filter(rep == nrep,
@@ -754,11 +724,12 @@ new_all_roots%>%
   coord_fixed() + 
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log(jr)), alpha = 0.8, size = 0.2)+
   facet_grid(humid ~ age, labeller = as_labeller(babbel)) + 
-  scale_color_viridis_c()
+  scale_color_viridis_c()+
+  ylab("Depth (cm)")
 
 ```
 
-```{r evolution of jxl on roots, echo=FALSE, warning=F, fig.pos = "!h"}
+```{r evolution of jxl on roots, echo=FALSE, warning=F, fig.pos = "h", fig.height=4}
 
 new_all_roots%>%
   filter(rep == nrep,
@@ -770,7 +741,8 @@ new_all_roots%>%
   coord_fixed() + 
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2, colour = log(jxl)), alpha = 0.8, size = 0.3)+
   facet_grid(humid ~ age, labeller = as_labeller(babbel)) + 
-  scale_color_viridis_c()
+  scale_color_viridis_c()+
+  ylab("Depth (cm)")
 
 ```
 
@@ -793,8 +765,6 @@ dens <- new_all_roots%>%
             kr = sum(kr)/2)
 ```
 
-
-
 ```{r graph dens root, echo = F, warning=F, fig.cap="Root length density", fig.pos = "!h", fig.height= 4}
 dens%>%
   filter(age == 60,
@@ -811,7 +781,6 @@ dens%>%
   labs(colour = "Root type")
 
 ```
-
 
 ```{r dens suf 1, echo = F, warning=F, fig.cap="Evolution of the SUF with Leitner 2010 RSA parameter", fig.pos = "!h", fig.height=4}
 dens%>%
@@ -831,7 +800,6 @@ dens%>%
 
 ```
 
-
 ```{r dens suf 2, echo = F, warning=F, fig.cap="Evolution of the SUF with Postma 2011 RSA parameter", fig.pos = "!h", fig.height=4}
 dens%>%
   filter(ex == unique(dens$ex)[2],
@@ -849,8 +817,6 @@ dens%>%
   facet_grid(~age)
 
 ```
-
-
 
 ```{r dens suf 3, echo = F, warning=F, fig.cap="Evolution of the SUF with Leitner 2014 RSA parameter", fig.pos = "!h", fig.height=4}
 dens%>%
@@ -870,8 +836,6 @@ dens%>%
 
 ```
 
-
-
 ```{r dens radial 2, echo = F, fig.cap="Comparison of the radial fluxes between the different soil scenarios and the root system architectures", fig.pos = "!h", fig.height=4}
 dens%>%
   filter(age == 60,
@@ -889,8 +853,6 @@ dens%>%
   theme(axis.text.x=element_text(angle=90)) +
   facet_grid(ex~humid,  scales = "free", labeller = as_labeller(babbel))
 ```
-
-
 
 ```{r dens axial 2, fig.cap="Comparison of the axial fluxes between the different soil scenarios and the root system architectures", fig.pos = "!h", fig.height=4}
 dens%>%
@@ -923,9 +885,7 @@ dens%>%
   facet_grid(humid~ex, labeller = as_labeller(babbel))
 ```
 
-
-
-```{r krs, echo = F, warning = F, fig.cap="Evolution of the whole root system conductance. Effect comparison between root system architecture and root conductivity modification.", fig.pos = "!h", fig.height=4, fig.width= 8}
+```{r krs, echo = F, warning = F, fig.cap="Evolution of the whole root system conductance. Effect comparison between root system architecture and root conductivity modification.", fig.pos = "!h", fig.height=4.2, fig.width= 8}
 results%>%
   ggplot(aes(x= age, y = krs, colour = factor(ex)))+
   geom_point(aes(shape = factor(scenario)),size = 2, alpha = 0.5)+
@@ -945,7 +905,7 @@ Transpiration<- results%>%
             Tact = min(tpot, tact))
 ```
 
-```{r transpi with water, echo = F, warning= F, fig.pos = "!h", fig.height=4}
+```{r transpi with water, echo = F, warning= F, fig.pos = "!h", fig.height=4, fig.cap="Evolution of the transpiration rate in a wet soil."}
 
 Transpiration%>%
   filter(humid == "-300")%>%
@@ -958,15 +918,11 @@ Transpiration%>%
   ylab("Transpiration (cm³/day)")+
   labs(colour = "Root architecture example")+  labs(colour = "RSA example",
        shape = "scenario",
-       linetype = "scenario")+
-  #guides(linetype = F)+
-  facet_wrap(~humid, scales = "free", labeller = as_labeller(babbel))
+       linetype = "scenario")
 ```
 
 
-The actual transpiration under drought whith two scenarion of conductivities
-
-```{r transpi with dry condition, echo = F, warning = F, fig.pos = "!h", fig.height=4}
+```{r transpi with dry condition, echo = F, warning = F, fig.pos = "!h", fig.height=4, fig.cap="Evolution of the transpiration rate in two different soil scenarios where the soil is drying up."}
 
 Transpiration%>%
     filter(humid %in% c("-7000", "-15000"))%>%
@@ -988,7 +944,5 @@ Transpiration%>%
   facet_wrap(~humid, labeller = as_labeller(babbel))
 
 ```
-
-The different line represent a potential transpiration.
 
 # References
