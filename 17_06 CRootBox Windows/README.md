@@ -1,9 +1,10 @@
 
 # CRootBox June 2017 for Windows 
 
-The fastest way to try CRootBox is to read the examples. Just uncomment the example in the main.cpp file to try, compile and run it. 
+The fastest way to try CRootBox is to read the examples. Just uncomment the example in the main.cpp file to try, compile and run it.
 
 The code should compile with any c++11 compiler, e.g. for g++: MinGW has been tested.
+Then create a new system environment variable. Path --> C:\MinGW\bin
 
 - Open the terminal:
 
