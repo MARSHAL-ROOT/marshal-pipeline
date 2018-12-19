@@ -1,7 +1,7 @@
 ---
 title: 'Getting Functionnal-structural plant model into a pipeline:'
 author: "Adrien Heymans, Felicien Meunier, and Guillaume Lobet"
-date: "`r format (Sys.time(), '%d %B, %Y')`"
+date: "`r format (Sys.time(), '%B, %Y')`"
 output:
   pdf_document:
     fig_caption: yes
@@ -20,13 +20,12 @@ knitr::opts_knit$set(root.dir = "~/GitHub/marshal-pipeline")
 
 # Introduction
 
-The coupling of models with one another can be use to find releavant sequence of information. This can create a network of data that can be use to answer complex questions which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** need an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox]. The 
+The coupling of models with one another can be use to find releavant sequence of information. This can create a network of data that can be use to answer complex questions which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** needs an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox].
 
 ## How to use MARSHAL in a R environment
 
 To run this example, the marshal package is required. This package can be found on [GitHub](https://github.com/MARSHAL-ROOT/marshal).
-
-or by simply excecute the following line in the R environment:
+Or by simply excecute the following line in the R environment:
 
 ```{r echo=TRUE, eval=FALSE}
 install.packages("devtools")
@@ -65,13 +64,11 @@ babbel <- c("all_rain" = "rain all time",
            "1" = "1", "2"= "2", "3"="3", "4" = "4", "5"="5",
            "10" = "10", "20" = "20", "30" = "30", "40" = "40",
            "50" = "50", "60"= "60",
-           "Doussan et al. \n" = "Doussan et al.", "Early Doussan et al. \n" = "Early",
-           "Late Doussan et al. \n" = "Late",
+           "Doussan et al." = "Doussan et al.", "Early Doussan et al." = "Early",
+           "Late Doussan et al." = "Late",
            "type_1" = "Axes", "type_2" = "Lateral",
            "-300" = "humid", "-7000" = "dry", "-15000" = "arid")
 ```
-
-Once it is installed, the boundary condition on which the model works should be implemeted.
 
 # Boundary condition of MARSHAL.
 
@@ -81,6 +78,8 @@ The bondary condition of MARSHAL are :
 - The water potential of the soil.
 - The root system architecture.
 - The initial pressure strength that pull water out of the collar.
+
+To illustate the potential of MARSHAL, we will create 
 
 ## Hydraulic properties of the root system
 
@@ -203,7 +202,7 @@ write_csv(all_roots, "all_roots.csv")
 all_roots <- read.csv("all_roots.csv")
 ```
 
-The figure \ref{roots} shows the root system architectures that come out CRootBox at the half of the simulation time (30 days).
+The figure \ref{roots} shows the root system architectures that comes out CRootBox at the half of the simulation time (30 days).
 
 ```{r fig.cap="Projection in two dimentions of the different root systems computed with CRootBox at the age of 30 days \\label{roots}", echo=FALSE, fig.pos = "!h", fig.height=3, fig.width = 7}
 all_roots%>%
@@ -302,7 +301,7 @@ poly_area%>%
 
 #### The maximal rooting depth
 
-Thanks to the details information, with can mesures some root phenes along the z axis. The maximal rooting depth is a interesting phenotypic values. This can even be use in other model such as hydrus1D to estimate root water uptake.
+Thanks to the details information, with can mesures some root phenes along the z axis. The maximal rooting depth is a interesting phenotypic values. This can even be use in other models such as Feddes et al. [-@feddes1978] to estimate root water uptake.
 
 ```{r graph density, echo=T}
 # Summarise the total root length and the rooting depth information. 
@@ -336,9 +335,9 @@ RLD %>%
 
 #### The root lengths
 
-Root length density is a major phenotypic trait mesured in field when below ground information are requested. Here we computed the total root length every ten days. So, we can observe that after 60 days, the total root length is more less the same for the three RSA example. which can be approximate to a similar carbon investment in the root system at that time. King et al. [-@King2003] showed that a more homogenius vertical distribution of the roots should pay back in terms of carbon investments for water uptake. In the **result** section this assumption is developped. 
+Root length density is a major phenotypic trait mesured in field when below ground information are requested. Here we computed the total root length every ten days. So, we can observe that after 60 days, the total root length is more less the same for the three RSA example.
 
-```{r root length, echo= F, fig.cap="The root lenght", fig.subcap=c("The total root length", "The root length density after 60 days."), fig.pos = "!h", out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
+```{r root length, echo= F, warning= F, message= F, fig.cap="The root lenght", fig.subcap=c("The total root length", "The root length density after 60 days."), fig.pos = "!h", out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
 RLD %>%
   ggplot(aes(age, root/1000, colour = factor(ex)))+
   geom_smooth(alpha = 0.5)+
@@ -362,24 +361,6 @@ RLD2%>%
   theme(legend.position = "top", legend.direction = "vertical" )+
 #  facet_wrap(~ex, labeller = as_labeller(babbel))+
   labs(colour = "RSA example")
-```
-
-#### Number of roots.
-
-Although the total root length reach a close value of ten meter for all the different rootsystems after 60 days, there is a huge gap in term of number of roots between each of the root system architecture (figure \ref{numb roots}).
-
-```{r fig.cap="Number of different roots for each of the root system examples. \\label{numb roots}", echo= F, fig.pos = "!h", fig.height = 2.5}
-all_roots%>%
-  group_by(age, ex, rep)%>%
-  summarise(tip = max(sort(unique(branchID))))%>%
-  ggplot(aes(age, tip, colour = factor(ex)))+
-  geom_point(size = 2, alpha = 0.5)+
-  geom_point(aes(x = 0, y = 0), size = 2)+
-  theme_classic()+
-  facet_wrap(~ex, labeller =as_labeller(babbel))+
-  labs(colour = "RSA example")+
-  ylab("Number of roots")+
-  xlab("Time (d)")
 ```
 
 ## The water soil potential
@@ -463,14 +444,6 @@ k <- 1
 # Computing the root system hydraulic architecture
 # ------------------------------------------------
 
-#--------------------------------------------
-# Total of simulation that will be initiate
-# all <- length(unique(all_roots$rep)) * length(unique(conductivities$scenario)) * 
-#          length(unique(all_roots$age)) * length(unique(all_roots$ex)) *
-#          length(unique(soil$humid))
-# pb = txtProgressBar(min = 0, max = all, initial = 0, style = 3)
-#--------------------------------------------
-
 # Loop to run MARSHAL with the selected simulation parameters.
 
 for(exa in unique(all_roots$ex)){# Example of RSA
@@ -478,9 +451,6 @@ for(exa in unique(all_roots$ex)){# Example of RSA
     for(ag in sort(as.numeric(unique(all_roots$age)))){# age of the RS
       for(sen in unique(conductivities$scenario)){ # hydraulic properties
         for(hum in unique(soil$humid)){ # Scenario of water potential in the soil
-
-        # Progression bar (optional)
-        # setTxtProgressBar(pb,k)
         
         # Select specific Soil for the simulation
         temp_soil <- soil %>% 
@@ -572,11 +542,16 @@ for(exa in unique(all_roots$ex)){# Example of RSA
     }
   }
 }
+```
 
+```{r, eval= F}
 # Save the results
-# write_csv(new_all_roots, "new_all_roots.csv")
+write_csv(new_all_roots, "new_all_roots.csv")
 # Load the saved results
-# new_all_roots <- read.csv("new_all_roots.csv")
+new_all_roots <- read.csv("new_all_roots.csv")
+```
+```{r}
+# The previous process altered the age information. 
 new_all_roots <- new_all_roots%>%
   mutate(age = as.numeric(age)*10)
 
@@ -590,7 +565,7 @@ Once the simulation are computed, it is possible to visualize the output on a va
 
 The Standard uptake fraction is the relative distribution of root water uptake between root segments when water is equally available in space (units: %) [@Couvreur2012].
 
-```{r suf on roots, echo=FALSE, fig.cap="Standard uptake fraction of the different root systsem architecture", fig.pos = "!h"}
+```{r suf on roots, echo=FALSE, fig.cap="Standard uptake fraction of the different root systsem architecture", fig.pos = "!h", fig.height= 4}
 
 new_all_roots%>%
   filter(age == 60,
@@ -623,12 +598,6 @@ fi <-  new_all_roots%>%
          ex == param_choise[exa])%>%
   mutate(or_suf = sort(suf1, decreasing = T))
 
-# Distribution of the suf value
-# fi%>%
-#   ggplot(aes(x=1:nrow(fi), y = or_suf))+
-#   geom_line(color="#69b3a2")+
-#   geom_area(fill="#69b3a2", alpha=0.5)
-
 i <- 1
 k <- 0
 while(k <= 0.5){
@@ -660,7 +629,6 @@ new_all_roots%>%
   coord_fixed() + 
   geom_segment(data = , aes(x = x1, y = z1, xend = x2, yend = z2), alpha = 0.01)+
   geom_segment(data = fifty, aes(x = x1, y = z1, xend = x2, yend = z2, colour = suf1))+
-  #facet_wrap(~ex, nrow = 3) + 
   scale_color_viridis_c()
 ```
 
@@ -711,9 +679,7 @@ new_all_roots%>%
   scale_color_viridis_c()
 ```
 
-### The radial fluxes
-
-
+### Other hydraulic properties.
 
 
 
@@ -732,15 +698,6 @@ new_all_roots%>%
   ylab("Depth (cm)")
 ```
 
-### The axial fluxes
-
-
-
-
-
-
-
-
 ```{r jxl on roots, echo=FALSE, warning=F, error= F, fig.cap="Absorption speed, comparison between the RSA and the soil scenario", fig.pos = "!h"}
 
 new_all_roots%>%
@@ -757,14 +714,6 @@ new_all_roots%>%
   ylab("Depth (cm)")
 ```
 
-### The radial conductivities
-
-
-
-
-
-
-
 ```{r kr on roots, echo=FALSE, warning = F, fig.cap="The radial conductivity (Kr) on root segment, comparison between the different conductivity scenario and main root system architecure examples", fig.pos = "!h"}
 
 new_all_roots%>%
@@ -778,12 +727,6 @@ new_all_roots%>%
   scale_color_viridis_c()
 ```
 
-### The axial conductance
-
-
-
-
-
 ```{r kx on roots, echo=FALSE, warning = F, fig.pos = "!h", fig.cap="The axial conductance (Kx) on root segment, comparison between the different conductivity scenario and main root system architecure examples"}
 
 new_all_roots%>%
@@ -796,11 +739,6 @@ new_all_roots%>%
   facet_grid(ex~scenario, labeller = as_labeller(babbel)) + 
   scale_color_viridis_c()
 ```
-
-### The evolution of the radial fluxes
-
-
-
 
 
 
@@ -887,7 +825,7 @@ dens%>%
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("Standard uptake fraction (-)")+
-  #labs(colour = "Root type")+
+  labs(colour = "Root type")+
   theme(axis.text.x=element_text(angle=90)) +
   facet_grid(~age, labeller = as_labeller(babbel))
 
@@ -906,6 +844,7 @@ dens%>%
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("Standard uptake fraction (-)")+
+  labs(colour = "Root type")+  
   theme(axis.text.x=element_text(angle=90)) +
   facet_grid(~age)
 
@@ -925,6 +864,7 @@ dens%>%
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("Standard uptake fraction (-)")+
+  labs(colour = "Root type")+
   theme(axis.text.x=element_text(angle=90)) +
   facet_grid(~age)
 
@@ -932,7 +872,7 @@ dens%>%
 
 
 
-```{r dens radial 2, echo = F, fig.cap="Comparison of the radial fluxes between the different soil scenarios and the root system architectures", fig.pos = "!h"}
+```{r dens radial 2, echo = F, fig.cap="Comparison of the radial fluxes between the different soil scenarios and the root system architectures", fig.pos = "!h", fig.height=4}
 dens%>%
   filter(age == 60,
          scenario == "Doussan et al."
@@ -945,13 +885,14 @@ dens%>%
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("Radial fluxes (cm³/j)")+
+  labs(colour = "Root type")+
   theme(axis.text.x=element_text(angle=90)) +
   facet_grid(ex~humid,  scales = "free", labeller = as_labeller(babbel))
 ```
 
 
 
-```{r dens axial 2, fig.cap="Comparison of the axial fluxes between the different soil scenarios and the root system architectures", fig.pos = "!h"}
+```{r dens axial 2, fig.cap="Comparison of the axial fluxes between the different soil scenarios and the root system architectures", fig.pos = "!h", fig.height=4}
 dens%>%
   filter(age == 40,
          scenario == "Doussan et al.")%>%
@@ -962,10 +903,11 @@ dens%>%
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("Axial fluxes (cm³/j)")+
+  labs(colour = "Root type")+
   facet_grid(ex~humid, scales = "free", labeller = as_labeller(babbel))
 ```
 
-```{r psi, echo=F, warning= F, fig.cap="Water pressure head at the soil-root interface", fig.pos = "!h"}
+```{r psi, echo=F, warning= F, fig.cap="Water pressure head at the soil-root interface", fig.pos = "!h", fig.height=4}
 dens%>%
   filter(age == 50,
          scenario == "Doussan et al.")%>%
@@ -976,13 +918,14 @@ dens%>%
   theme_classic()+
   xlab("Depth (cm)") +
   ylab("psi (hPa)")+
+  labs(colour = "Root type")+
   theme(axis.text.x=element_text(angle=90)) +
   facet_grid(humid~ex, labeller = as_labeller(babbel))
 ```
 
 
 
-```{r krs, echo = F, warning = F, fig.cap="Evolution of the whole root system conductance. Effect comparison between root system architecture and root conductivity modification.", fig.pos = "!h", fig.height=5, fig.width= 8}
+```{r krs, echo = F, warning = F, fig.cap="Evolution of the whole root system conductance. Effect comparison between root system architecture and root conductivity modification.", fig.pos = "!h", fig.height=4, fig.width= 8}
 results%>%
   ggplot(aes(x= age, y = krs, colour = factor(ex)))+
   geom_point(aes(shape = factor(scenario)),size = 2, alpha = 0.5)+
@@ -1002,7 +945,7 @@ Transpiration<- results%>%
             Tact = min(tpot, tact))
 ```
 
-```{r transpi with water, echo = F, warning= F, fig.pos = "!h", fig.height=6, fig.width=6}
+```{r transpi with water, echo = F, warning= F, fig.pos = "!h", fig.height=4}
 
 Transpiration%>%
   filter(humid == "-300")%>%
@@ -1012,7 +955,7 @@ Transpiration%>%
                   linetype = factor(scenario)), alpha = 0.01, method = "loess")+
   theme_classic()+
   xlab("Time (d)") +
-  ylab("Actual transpiration")+
+  ylab("Transpiration (cm³/day)")+
   labs(colour = "Root architecture example")+  labs(colour = "RSA example",
        shape = "scenario",
        linetype = "scenario")+
@@ -1023,7 +966,7 @@ Transpiration%>%
 
 The actual transpiration under drought whith two scenarion of conductivities
 
-```{r transpi with dry condition, echo = F, warning = F, fig.pos = "!h", fig.height=5}
+```{r transpi with dry condition, echo = F, warning = F, fig.pos = "!h", fig.height=4}
 
 Transpiration%>%
     filter(humid %in% c("-7000", "-15000"))%>%
@@ -1038,7 +981,7 @@ Transpiration%>%
   geom_hline(yintercept = 0)+
   theme_classic()+
   xlab("Time (d)") +
-  ylab("Actual transpiration")+
+  ylab("Transpiration (cm³/day)")+
   labs(colour = "RSA example")+  labs(colour = "RSA example",
        shape = "scenario",
        linetype = "scenario")+

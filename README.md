@@ -18,15 +18,21 @@ library(marshal)
 
 - Soil water potential along the depth profile
 
-![](www/soil.PNG)
+![](www/fig/soil.PNG)
 
 - Root type conductivities (e.g. Doussan et al., 1998)
+
+![](www/fig/conductivities.PNG)
+
 - Water pressure head at the collar
+
 - Root system architecture (CRootBox)
 
-### Run CRootBox
+![](www/fig/RSA.PNG)
 
-The "a" executer
+### Run [CRootBox](https://plant-root-soil-interactions-modelling.github.io/CRootBox/)
+
+The "[a](https://github.com/MARSHAL-ROOT/marshal-pipeline/tree/master/17_06%20CRootBox%20Windows)" executer
 
 ## Run MARSHAL
 
@@ -34,6 +40,9 @@ The "a" executer
 
 ### output
 - Krs
+
+![]()www/fig/Krs.PNG)
+
 - Transpiration (Tpot \& Tact)
 - SUF, Kr \& Kx
 - Radial and Axial water fluxes
@@ -41,6 +50,6 @@ The "a" executer
 
 #### Visualize the output
 
-![](www/radial.PNG)
-![](www/radial2.PNG)
+![](www/fig/radial.PNG)
+![](www/fig/radial2.PNG)
 
