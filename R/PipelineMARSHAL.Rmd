@@ -175,14 +175,16 @@ for(param_name in param_choise){
     else if(Sys.info()['sysname'] == "Windows"){
         system("www/a.exe")
     }
-    else{
-        system("chmod 777 www/a.out")
-        system("www/a.out")
+    else if(Sys.info()['sysname'] == "Linux"){
+      system("chmod 777 www/a.out")
+      system("www/a.out")
     }
-    # Error could occurs at this point depending on your
-    # operating system. If so, please compile CRootBox on
-    # your device. The instruction can be found:
-# https://github.com/MARSHAL-ROOT/marshal-pipeline/tree/master/17_06%20CRootBox
+    else{
+      message("An error occured, which depended of your
+operating system. If so, please compile CRootBox on
+your device. The instruction can be found: 
+https://github.com/MARSHAL-ROOT/marshal-pipeline/tree/master/17_06%20CRootBox")
+    }
 
   # Get all the .txt files exported by CRootBox
   fls <- list.files("./")
