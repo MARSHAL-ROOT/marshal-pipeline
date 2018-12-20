@@ -31,7 +31,7 @@ library(marshal)
 
 #### Run [CRootBox](https://plant-root-soil-interactions-modelling.github.io/CRootBox/)
 
-The "[a](https://github.com/MARSHAL-ROOT/marshal-pipeline/tree/master/17_06%20CRootBox%20Windows)" executer
+The "[a](https://github.com/MARSHAL-ROOT/marshal-pipeline/tree/master/17_06%20CRootBox)" executer
 
 ![](www/fig/RSA.PNG)
 

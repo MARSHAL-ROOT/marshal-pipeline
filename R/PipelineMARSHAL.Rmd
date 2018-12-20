@@ -20,7 +20,7 @@ knitr::opts_knit$set(root.dir = "~/GitHub/marshal-pipeline")
 
 # Introduction
 
-**MARSHAL**, the MAize Root System Hydraulic Architecture soLver that combines a root architecture model, CRootBox [@CRootBox], the water flow equation resolution algorithm of Doussan et al. (1998) [@Doussan], improved by including the analytical solution of Landsberg and Fowkes (Landsberg and Fowkes 1978) extended for root systems [@Meunier2017-ue] and the macroscopic parameter calculation of Couvreur et al. [@Couvreur2012]. MARSHAL calculates root system conductance, 1 to 3-D uptake distribution and other upscaled variables (plant leaf water potential or transpiration) for any combination of structural and functional traits of maize.
+**MARSHAL**, the MAize Root System Hydraulic Architecture soLver that combines a root architecture model, CRootBox [@CRootBox], the water flow equation resolution algorithm of Doussan et al. (1998) [@Doussan], improved by including the analytical solution of Landsberg and Fowkes [-@Landsberg1978] extended for root systems [@Meunier2017-ue] and the macroscopic parameter calculation of Couvreur et al. [@Couvreur2012]. MARSHAL calculates root system conductance, 1 to 3-D uptake distribution and other upscaled variables (plant leaf water potential or transpiration) for any combination of structural and functional traits of maize.
 
 ## How to use MARSHAL in a R environment
 
@@ -38,8 +38,6 @@ MARSHAL is built upon a handful of other packages that need to be loaded. One ad
 ```{r preambule, echo=T, warning=F, message=F}
 library(data.table)
 library(Matrix)
-```
-```{r, echo=T, warning=F, message=F}
 library(tidyverse)
 library(readxl)
 library(cowplot)
@@ -170,7 +168,21 @@ for(param_name in param_choise){
   ################## 
   #  Run CRootBox  #
   ##################
-  system("www/a.exe")
+    if(Sys.info()['sysname'] == "Darwin"){
+        system("chmod 777 www/a-mac.out")
+        system("www/a-mac.out")
+    }
+    else if(Sys.info()['sysname'] == "Windows"){
+        system("www/a.exe")
+    }
+    else{
+        system("chmod 777 www/a.out")
+        system("www/a.out")
+    }
+    # Error could occurs at this point depending on your
+    # operating system. If so, please compile CRootBox on
+    # your device. The instruction can be found:
+# https://github.com/MARSHAL-ROOT/marshal-pipeline/tree/master/17_06%20CRootBox
 
   # Get all the .txt files exported by CRootBox
   fls <- list.files("./")
