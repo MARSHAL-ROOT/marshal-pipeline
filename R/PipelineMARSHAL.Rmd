@@ -20,12 +20,12 @@ knitr::opts_knit$set(root.dir = "~/GitHub/marshal-pipeline")
 
 # Introduction
 
-The coupling of models with one another can be use to find releavant sequence of information. This can create a network of data that can be use to answer complex questions which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. It focuses on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** needs an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that compute the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox].
+The coupling of models can be used to find relevant sequence of information. This can create a network of data that can be used to answer complex questions, which interconnect multiscale or disciplinary frame [@Passot2018-ox]. Depending of the models, the complexity of the system is significantly increase. Here, the system on which this pipeline works is a below ground system. This pipeline is focused on solving the hydraulic architecture of a root system. To illustrate the necessity of merging models together, we start by the fact that **MARSHAL** needs an explicit root system architecture to add on the hydraulic part. **CRootBox** is precisely a model that computes the explicit root system architecture [@CrootBox] and MARSHAL was designed to accept easily the CRootBox output. Dealing with models as an input for another model will also increase the dynamic approach of the overall [@Passot2018-ox].
 
 ## How to use MARSHAL in a R environment
 
 To run this example, the marshal package is required. This package can be found on [GitHub](https://github.com/MARSHAL-ROOT/marshal).
-Or by simply excecute the following line in the R environment:
+Or by simply execute the following line in the R environment:
 
 ```{r echo=TRUE, eval=FALSE}
 install.packages("devtools")
@@ -34,29 +34,25 @@ install_github("MARSHAL-ROOT/marshal")
 library(marshal)
 ```
 
-MARSHAL is built upon a handfull of other packages that need to be loaded. One groupe of [function](https://github.com/MARSHAL-ROOT/marshal-pipeline/R/) has to be loaded manually.
-
-
+MARSHAL is built upon a handful of other packages that need to be loaded. And one group of [function](https://github.com/MARSHAL-ROOT/marshal-pipeline/R/) has to be loaded manually.
 ```{r preambule, echo=T, warning=F, message=F}
 library(data.table)
-library(tidyverse)
 library(Matrix)
+```
+```{r, echo=T, warning=F, message=F}
+library(tidyverse)
 library(readxl)
 library(cowplot)
 library(xml2)
 library(knitr)
-
 `%!in%` <- compose(`!`, `%in%`)
-
 source("R/io_function.R")
-
 ```
 ```{r, eval=T, echo= F, warning=FALSE, message=F}
 library(marshal)
 ```
 
 ```{r eval= T, echo= F}
-
 babbel <- c("all_rain" = "rain all time",
            "Zea_mays_1_Leitner_2010" = "Leitner 10", 
            "Zea_mays_3_Postma_2011" = "Postma 11", 
@@ -79,11 +75,11 @@ The bondary condition of MARSHAL are :
 - The root system architecture.
 - The initial pressure strength that pull water out of the collar.
 
-To illustate the potential of MARSHAL, we will create 
+To illustate the potential of MARSHAL, we have created a series of 27 scenarios in total, from three root system architecture (RSA) examples, three different hydraulics properties of the roots, and three vertical distribution of the soil water potential due to three drying coefficients ($3 soil \times 3 RSA \times 3 hydraulic conductivities$).
 
 ## Hydraulic properties of the root system
 
-The hydraulic properties of the root system can be found in the litterature, by measuring it on root samples or with the helps of modelling tools as well. Here, the conductivities of the root come from the Doussan et al. paper [-@Doussan]. To show some possibilities, three scenarios in total were built from this Doussan et al. table of conductivities (figure \ref{conduct}). The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex. And the third, is the opposite of the second, or in other words, the maturity of the root anatomy, insted of being advance towards the apex, is moved of 5 cm backwards.
+The hydraulic conductivities of the root system can be found in the litterature, by measuring it on root samples or with the helps of modelling tools as well. Here, the conductivities of the root come from the Doussan et al. paper [-@Doussan]. To show some possibilities, three scenarios in total were built from this Doussan et al. table of conductivities (figure \ref{conduct}). The first, which is the original values placed along the root axes from the apex. The second, is based on the first but the maturity of the root anatomy is advanced of 5 cm towards the apex. And the third, is the opposite of the second, or in other words, the maturity of the root anatomy, insted of being advance towards the apex, is moved of 5 cm backwards.
 
 ### The conductivities of the different root type.
 
@@ -142,7 +138,7 @@ conductivities %>%
 
 ## Root system architecture with CRootBox
 
-Modelling root system architecture can be achieve with CRootBox for instance [@CrootBox]. Some examples of the parametre files for a couples of specieses are details in the *modelparameter* folder, which is linked to the [CRootBox repository](https://github.com/Plant-Root-Soil-Interactions-Modelling/CRootBox).
+Modelling root system architecture can be achieved with CRootBox for instance [@CrootBox]. Some examples of the parametre files for a couples of specieses are details in the *modelparameter* folder, which is linked to the [CRootBox repository](https://github.com/Plant-Root-Soil-Interactions-Modelling/CRootBox).
 
 For the purpose of the example we choose to work with three parameter files of maize: 
 
@@ -150,7 +146,7 @@ For the purpose of the example we choose to work with three parameter files of m
 - *Zea_mays_1_Leitner_2010*
 - *Zea_mays_4_Leitner_2014*
 
-The following lines of code allows to create five unique root system architectures for each parameter files. It computes the root growth during 60 days and load every ten days the architecture information in a data table. Inside the CRootBox implementation for this example, the root growth has been restricted to the below ground level for a more realistic point of view. Furthermore, some segments were not build up to the whole root system because they were shorter than the spatial resolution of the root system.
+The following lines of code allows to create five unique root system architectures for each parameter files. It computes the root growth during 60 days and load every ten days the architecture information in a data table. The time resolution can be increased inside the CRootBox implementation, if it is needed. For the implementation of this example, the root growth has been restricted to the below ground level for a more realistic point of view. Furthermore, some segments were not build up to the whole root system because they were shorter than the spatial resolution of the root system.
 
 ```{r all_roots, eval=T, echo=T, warning=F, message= F}
 # Number of repetion per root system architecture example
@@ -227,11 +223,9 @@ Once the complete root system architecture is computed there are a number of arc
 - the total length of the root system
 - ...
 
-here we summarize briefly with a couple of figure, the different architectural phenes which can be mesured.
-
 #### The convex hull
 
-The convex hull is one of the most commun known traits to works with. It gives a qualitative information about root exploration. To find the convex hull with an explicit root system in 3D is straight forwards. Thanks to the chull function, we are able to identify all the coordinates that make the convex hull and the Polygon function in the sp package allows us to determine the area of the convex hull.
+The convex hull is one of the most commun known traits to works with. It gives a qualitative information about root exploration.
 
 ```{r Convex hull, warning=F}
 root_20 <- all_roots%>%
@@ -301,7 +295,7 @@ poly_area%>%
 
 #### The maximal rooting depth
 
-Thanks to the details information, with can mesures some root phenes along the z axis. The maximal rooting depth is a interesting phenotypic values. This can even be use in other models such as Feddes et al. [-@feddes1978] to estimate root water uptake.
+Thanks to the very detail information, it is possible to measure some root phenes along the z axis. The maximal rooting depth is a interesting phenotypic values. This can be use in other models such as Feddes et al. [-@feddes1978] to estimate root water uptake.
 
 ```{r graph density, echo=T}
 # Summarise the total root length and the rooting depth information. 
@@ -335,7 +329,7 @@ RLD %>%
 
 #### The root lengths
 
-Root length density is a major phenotypic trait mesured in field when below ground information are requested. Here we computed the total root length every ten days. So, we can observe that after 60 days, the total root length is more less the same for the three RSA example.
+Root length density is a major phenotypic trait mesured in field when below ground information are requested. In this case the total root length is computed every ten days.
 
 ```{r root length, echo= F, warning= F, message= F, fig.cap="The root lenght", fig.subcap=c("The total root length", "The root length density after 60 days."), fig.pos = "h", out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold',fig.align='center'}
 RLD %>%
@@ -407,7 +401,7 @@ soil<- rbind(soil, soil_tmp)
 }
 ```
 
-```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile", fig.pos = "h", fig.height=2.5}
+```{r , echo=F, fig.cap="Water potential evolution during the simultaion time along the soil profile", fig.pos = "!h", fig.height=2.5}
 soil %>%
   filter(value %in% c(10,30,50,60))%>%
   ggplot(aes(psi, z, colour = factor(value)))+
@@ -440,12 +434,8 @@ Here we call the MARSHAL function `getSUF` that will solve the hydraulic part of
 new_all_roots <- NULL
 results<- NULL
 k <- 1
-# ------------------------------------------------
 # Computing the root system hydraulic architecture
-# ------------------------------------------------
-
 # Loop to run MARSHAL with the selected simulation parameters.
-
 for(exa in unique(all_roots$ex)){# Example of RSA
   for(re in unique(all_roots$rep)){ # repetition
     for(ag in sort(as.numeric(unique(all_roots$age)))){# age of the RS

@@ -74,17 +74,17 @@ for(param_name in param_choise){
 
 `getSUF` function to add hydraulic macro-properties on a root system architecture
 
-### output
-#### Krs
+## output
+### Krs
 
 ![](www/fig/Krs.PNG)
 
-#### Transpiration (Tpot \& Tact)
+### Transpiration (Tpot \& Tact)
 
 In wet condition
 ![](www/fig/transpi.PNG)
 
-#### SUF, Kr \& Kx
+### SUF, Kr \& Kx
 
 Leitner 2010
 ![](www/fig/suf_l0.PNG)
@@ -93,12 +93,12 @@ Postma 2011
 Leitner 2014
 ![](www/fig/suf_l4.PNG)
 
-#### Radial and Axial water fluxes
+### Radial and Axial water fluxes
 
 ![](www/fig/radial.PNG)
 ![](www/fig/radial2.PNG)
 
-#### water pressure head at the soil-root interface
+### water pressure head at the soil-root interface
 
 ![](www/fig/psi.PNG)
 
