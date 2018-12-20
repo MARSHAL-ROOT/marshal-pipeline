@@ -1,18 +1,29 @@
+The fastest way to try this compatible version of CRootBox with MARSHAL is to read the examples.
+
+In the main.cpp file, you can select which example you want, then compile and run it.
 
 # CRootBox June 2017 for Windows 
-
-The fastest way to try CRootBox is to read the examples. Just uncomment the example in the main.cpp file to try, compile and run it.
 
 The code should compile with any c++11 compiler, e.g. for g++: MinGW has been tested.
 Then create a new system environment variable. Path --> C:\MinGW\bin
 
 - Open the terminal:
 
-> cd ~/GitHub/marshal-pipeline/17_06 CRootBox Windows
+> cd ~/GitHub/marshal-pipeline/17_06 CRootBox
 
 > g++ *.cpp -std=c++11
 
 > a.exe
+
+# CRootBox June 2017 for Mac and Linux
+
+- Open the terminal:
+
+> cd ~/GitHub/marshal-pipeline/17_06 CRootBox
+
+> g++ *.cpp -std=c++11
+
+> a.out
 
 ***
 
