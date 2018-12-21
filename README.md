@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2474420.svg)](https://doi.org/10.5281/zenodo.2474420)
+
 # marshal-pipeline
 How to use MARSHAL from the R environment
 
