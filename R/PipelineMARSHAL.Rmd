@@ -48,6 +48,7 @@ source("R/io_function.R")
 ```
 ```{r, eval=T, echo= F, warning=FALSE, message=F}
 library(marshal)
+source("R/GetSUF.R")
 ```
 
 ```{r eval= T, echo= F}
@@ -150,18 +151,16 @@ The following lines of code allows creating five unique RSAs for each parameter 
 
 ```{r all_roots, eval=T, echo=T, warning=F, message= F}
 # Number of repetition per RSA example
-nrep <- 5
+nrep <- 2
 
 # List of three CrootBox parameter files for corn
-param_choise <- c("Zea_mays_1_Leitner_2010",
-                  "Zea_mays_3_Postma_2011",
-                  "Zea_mays_4_Leitner_2014")
+param_choise <- c("01")
 
 all_roots <- NULL
 for(param_name in param_choise){
   # Load param of the selected example
-  rparam <- read_rparam(path = paste0("./www/", param_name, ".rparam"))
-  pparam <- read_pparam(path = paste0("./www/", param_name, ".pparam"))
+  rparam <- read_rparam(path = paste0("./www/", param_name, "param.rparam"))
+  pparam <- read_pparam(path = paste0("./www/", param_name, "param.pparam"))
   # Overwrite the param files that will be use
   write_rparam(rparam, "./www/param.rparam")
   write_pparam(pparam, "./www/param.pparam")

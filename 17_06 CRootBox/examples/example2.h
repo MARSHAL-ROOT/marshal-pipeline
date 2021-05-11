@@ -17,22 +17,22 @@ void example2()
 {
     RootSystem rootsystem;
 
-    string name = "Zea_mays_5_Leitner_2014";
+    string name = "Brassica_napus_a_Leitner_2010";
 
     /*
      * Plant and root parameter from a file
      */
-    rootsystem.openFile(name);
+    rootsystem.openFile(name, "www/");
 
     /*
      * Set geometry
      */
 
     // 1.creates a cylindrical soil core with top radius 5 cm, bot radius 5 cm, height 50cm, not square but circular
-    SDF_PlantContainer soilcore(5,5,40,false);
+    SDF_PlantContainer soilcore(6,6,30,false);
 
     //2. creates a square 27*27 cm containter with height 1.5 cm (used in parametrisation experiment)
-    SDF_PlantBox rhizotron(1.4,27,27);
+    SDF_PlantBox rhizotron(30,120,400);
 
     //3. creates a square rhizotron r*r, with height h, rotated around the x-axis for angle alpha
     double r = 20;
@@ -56,12 +56,16 @@ void example2()
     /*
      * Simulate
      */
-    double simtime = 60;
-    double dt = 1;
-    int N = round(simtime/dt);
-    for (int i=0; i<N; i++) {
-        rootsystem.simulate(dt);
-    }
+     double simtime = 60; // 20, 40, 60 days
+     double dt = 10; // try other values here
+	 int t = 0;
+     int N = round(simtime/dt);
+     for (int i=0; i<N; i++) {
+		 t = t+dt;
+		 rootsystem.simulate(dt);
+		 SegmentAnalyser analysis(rootsystem);
+		 analysis.write(std::to_string(t)+"_rootsystem.txt");
+     }
 
     /*
      * Export results (as vtp)
@@ -71,7 +75,7 @@ void example2()
     /*
      * Export container geometry as Paraview Python script (run file in Paraview by Tools->Python Shell, Run Script)
      */
-    rootsystem.write(name+".py");
+    //rootsystem.write(name+".py");
 
     cout << "Finished with a total of " << rootsystem.getNumberOfNodes()<< " nodes\n";
 

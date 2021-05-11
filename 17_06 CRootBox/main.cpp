@@ -9,6 +9,7 @@
 
 
 #include "examples/example1_wb_dgf.h"
+#include "examples/example2.h"
 
 
 /**
@@ -21,6 +22,8 @@ int main(int argc, char* argv[])
     if (argc>1) {
         name= argv[1];
     }
+	
+	//example2();
 
 	example1_wb_dgf(); // open parameter file and output txt
 

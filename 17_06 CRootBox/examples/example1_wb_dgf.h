@@ -26,6 +26,7 @@ void example1_wb_dgf()
      * Set geometry
      */
     //creates a box
+	//SDF_PlantContainer soilcore(6,6,30,false);
     SDF_PlantBox box(900,900,900);
     rootsystem.setGeometry(&box);
     /*
@@ -51,7 +52,7 @@ void example1_wb_dgf()
     /*
      * Export final result (as vtp)
      */
-    //rootsystem.write(name+".vtp");
+    rootsystem.write(name+".vtp");
 
     /*
      * Export segments in RSML format

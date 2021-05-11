@@ -1,34 +1,85 @@
 # Parameter set for type
-type	1
-name	primaryroots
-lb	0.5	0.05
-la	18.1	1.81
-ln	0.5	0.05
-lmax	180.1	18.01
-r	2.94	0.294
-a	0.13	0.013
-color	0	0	205
-tropism	1	1	0.1
-dx	1
-successors	1	2
-successorP	1	1
-theta	1.39626	0.139626
-rlt	1000000000	100000000
-gf	1
+type	1
+name	Taproot
+lb	0.08	0.08
+la	7.43	1.18
+ln	0.19	0.01
+lmax	36.44	3.7
+r	2.4	0.1
+a	0.06	0.016
+color	1	0	0
+tropism	1	4.35	0.018
+dx	1
+successors	2	2	3
+successorP	2	0.67	0.33
+theta	0	0.1
+rlt	1e+09	0
+gf	1
 # Parameter set for type
-type	2
-name	secondaryroots
-lb	0	0
-la	10	1
-ln	1.2	0.12
-lmax	8.8	0
-r	0.75	0.075
-a	0.05	0.005
-color	238	23.8	0
-tropism	2	0.5	0.1
-dx	1
-successors	0
-successorP	0
-theta	1.50098	0.150098
-rlt	1000000000	100000000
+type	2
+name	Lateral
+lb	1	0.1
+la	1	0.1
+ln	1	0.1
+lmax	0.14	0.01
+r	0.19	0.17
+a	0.013	0.005
+color	0	1	0
+tropism	1	2.5	0.3
+dx	0.1
+successors	1	0
+successorP	1	0
+theta	0.42	0.18
+rlt	1e+09	0
+gf	1
+# Parameter set for type
+type	3
+name	LongLateral
+lb	0.65	0.63
+la	1.6	1.6
+ln	0.26	0.03
+lmax	6.51	2.97
+r	0.19	0.14
+a	0.017	0.006
+color	0	1	0
+tropism	1	4.1	0.22
+dx	0.1
+successors	1	2
+successorP	1	1
+theta	0.34	0.149
+rlt	1e+09	0
+gf	1
+# Parameter set for type
+type	4
+name	Basalroot
+lb	0.65	0.4
+la	5.1	5.1
+ln	0.15	0.06
+lmax	23.65	10.3
+r	2.42	0.21
+a	0.04	0.011
+color	0.5	0	0.5
+tropism	1	4.3	0.14
+dx	1
+successors	2	2	3
+successorP	2	0.87	0.13
+theta	1.07884	0.107142
+rlt	1e+09	0
+gf	1
+# Parameter set for type
+type	5
+name	Shootborneroot
+lb	2	0.02
+la	13	0.13
+ln	0.12	0.008
+lmax	14	2.9
+r	2.4	0.128777
+a	0.084	0.019
+color	0	0.5	0.5
+tropism	1	4.35	0.040
+dx	1
+successors	1	2
+successorP	1	1
+theta	1.08295	0.108585
+rlt	1e+09	0
 gf	1
